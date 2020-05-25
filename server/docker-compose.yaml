@@ -1,0 +1,36 @@
+version: "3.8"
+
+
+services: 
+    nginx:
+        image: nginx:alpine
+        volumes:
+            - ${APP_PATH_HOST}:/var/www/html
+            - ./nginx:/etc/nginx/conf.d
+        networks: 
+            - backend
+            - web
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+            - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+            - "traefik.http.routers.warehouseapi.rule=Host(`warehouseapi.iopk.in`)"
+            - "traefik.http.routers.warehouseapi.entrypoints=web"
+            - "traefik.http.routers.warehouseapi.middlewares=redirect-to-https"  
+            - "traefik.http.routers.warehouseapi-secured.rule=Host(`warehouseapi.iopk.in`)"
+            - "traefik.http.routers.warehouseapi-secured.tls.certresolver=mytlschallenge"
+            - "traefik.http.routers.warehouseapi-secured.entrypoints=web-secured"
+
+    php: 
+        build: 
+            context: ./php
+        volumes:
+            - ${APP_PATH_HOST}:/var/www/html
+        networks: 
+            - backend
+
+networks: 
+    web:
+        external: true
+    backend:
+        external: true
