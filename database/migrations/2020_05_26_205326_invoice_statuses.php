@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Invoices extends Migration
+class InvoiceStatuses extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class Invoices extends Migration
      */
     public function up()
     {
-        Schema::create('invoices', function (Blueprint $table) {
-            $table->id('invoice_id');
-            $table->integer('order_id')->index();
-            $table->integer('status_id')->index();
-            $table->string('invoice_code');
+        Schema::create('invoice_statuses', function (Blueprint $table) {
+            $table->id('status_id');
+            $table->string('status');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class Invoices extends Migration
      */
     public function down()
     {
-        Schema::drop('invoices');
+        Schema::dropIfExists('invoice_statuses');
     }
 }

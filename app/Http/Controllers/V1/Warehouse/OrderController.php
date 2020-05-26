@@ -12,12 +12,20 @@ class OrderController extends Controller
 {
     public function getAvailable(OrderRequest $request)
     {
-        return Order::with('status')
+        return Order::with('status', 'invoices.status')
             ->where('status_id', '<', 4)
             ->where('warehouse_id', $request->get('warehouse_id'))
             ->get()
             ->map(function ($o) {
-                return array_merge($o->only('order_id','warehouse_id','order_num','status_id'), ['status'=>$o->status->status]);
+                return array_merge(
+                    $o->only('order_id','warehouse_id','order_num','status_id'),
+                    [
+                        'status'=>$o->status->status,
+                        'invoices' => $o->invoices->map(function ($invoice){
+                            return array_merge($invoice->only('invoice_id', 'invoice_code', 'status_id'), ['status' => $invoice->status->status]);
+                        })
+                    ]
+                );
             });
     }
 

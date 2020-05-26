@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
             ItemStatusSeeder::class,
             WarehouseSeeder::class,
             OrderStatusSeeder::class,
-            OrderSeeder::class,
+            InvoiceStatusSeeder::class,
+            //OrderSeeder::class,
         ]);
     }
 }
