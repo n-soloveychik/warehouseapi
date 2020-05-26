@@ -14,10 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-
-
-
-Route::group(['namespace' => 'V1', 'prefix' => 'v1'], function (\Illuminate\Routing\Router $r){
+Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], function (\Illuminate\Routing\Router $r){
 
     $r->group(['namespace' => 'Auth'], function (\Illuminate\Routing\Router $r){
         $r->post('login', 'LoginController@login');
