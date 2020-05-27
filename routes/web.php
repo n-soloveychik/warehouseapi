@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], function (\Illuminate\Routing\Router $r){
     $r->group(['namespace' => 'Auth', 'prefix' => 'auth'], function (\Illuminate\Routing\Router $r){
-
         $r->post('login', 'LoginController@login');
         $r->post('check', 'LoginController@check')->middleware('auth:sanctum');
     });
