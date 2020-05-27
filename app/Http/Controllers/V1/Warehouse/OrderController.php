@@ -42,7 +42,7 @@ class OrderController extends Controller
     public function getInvoices(Request $request, $order_id)
     {
         return InvoiceWithItemsResponse::format(
-            Invoice::with('items.status', 'items.category')
+            Invoice::with('items.status', 'items.category','items.claims.images')
                 ->where('order_id', $order_id)
                 ->get()
         );
@@ -52,7 +52,7 @@ class OrderController extends Controller
     public function getItemsByInvoiceID(Request $request, $order_id, $invoice_id)
     {
         return InvoiceWithItemsResponse::format(
-            Invoice::with('items.status', 'items.category')
+            Invoice::with('items.status', 'items.category', 'items.claims.images')
                 ->where('order_id', $order_id)
                 ->where('invoice_id', $invoice_id)
                 ->get()

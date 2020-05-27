@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
+use App\Internal\ResponseFormatters\ClaimsResponse;
 use App\Models\Item;
 use App\Models\ItemCategory;
 use App\Models\ItemClaim;
@@ -92,17 +93,7 @@ class ItemController extends Controller
         if (empty($item))
             throw new NotFoundHttpException("Unknown item_id");
 
-
-        return $item->claims->map(function ($claim){
-            return array_merge(
-                $claim->only('claim_id','item_id', 'claim_description'),
-                [
-                    'images' => $claim->images->map(function ($img){
-                        return array_merge($img->only('claim_image_id', 'claim_id'), ['img' => url($img->claim_image_path, [], true)]);
-                    })
-                ]);
-        });
-
+        return ClaimsResponse::format($item->claims);
     }
 
 
