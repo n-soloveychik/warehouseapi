@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], function (\Illuminate\Routing\Router $r){
-
     $r->group(['namespace' => 'Auth', 'prefix' => 'auth'], function (\Illuminate\Routing\Router $r){
 
         $r->post('login', 'LoginController@login');
@@ -28,12 +27,8 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
             $r->post('insert', 'ImageController@insert');
         });
 
-
-
         $r->group(['namespace' => 'Warehouse'], function(\Illuminate\Routing\Router $r){
-
             $r->get('warehouses', 'WarehouseController@getWarehouses');
-
             $r->group(['prefix' => 'order'], function (\Illuminate\Routing\Router $r){
                 $r->get('available', 'OrderController@getAvailable');
 
@@ -43,16 +38,15 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 });
 
             });
-
             $r->group(['prefix' => 'item'], function (\Illuminate\Routing\Router $r){
                 $r->post('category', 'ItemController@createCategory');
                 $r->get('categories', 'ItemController@getCategories');
 
                 $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+'],], function (\Illuminate\Routing\Router $r){
-                    $r->put('status-stock', 'ItemController@statusStock');
-                    $r->put('status-claim', 'ItemController@statusClaim');
+                    $r->put('status-in-stock', 'ItemController@statusInStock');
+                    $r->post('status-claim', 'ItemController@statusClaim');
+                    $r->get('claims', 'ItemController@claims');
                 });
-
             });
 
             //$r->get('');
@@ -60,14 +54,9 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
             $r->get('user', function (\Illuminate\Http\Request $r){
                 dd($r->user());
             });
-
         });
 
-
-
     });
-
-
 
 });
 

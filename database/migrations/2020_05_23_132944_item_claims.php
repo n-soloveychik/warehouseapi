@@ -13,7 +13,12 @@ class ItemClaims extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('item_claims', function (Blueprint $table) {
+            $table->id('claim_id');
+            $table->integer('item_id');
+            $table->string('claim_description',300);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -23,6 +28,6 @@ class ItemClaims extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('item_claims');
     }
 }

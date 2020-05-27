@@ -10,10 +10,14 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    /**
+     * @param OrderRequest $request
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
     public function getAvailable(OrderRequest $request)
     {
         return Order::with('status', 'invoices.status')
-            ->where('status_id', '<', 4)
+            ->where('status_id', '<', 5)
             ->where('warehouse_id', $request->get('warehouse_id'))
             ->get()
             ->map(function ($o) {
@@ -29,6 +33,11 @@ class OrderController extends Controller
             });
     }
 
+    /**
+     * @param Request $request
+     * @param $orderId
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
     public function getInvoices(Request $request, $orderId){
         return Invoice::with('items.status', 'items.category')
             ->where('order_id', $orderId)

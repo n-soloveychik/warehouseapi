@@ -7,6 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(\App\Models\Invoice::class, function (Faker $faker) {
     return [
-        'invoice_code' => $faker->numerify('####.0000.0000')
+        'invoice_code' => $faker->numerify('####.0000.0000'),
+        'status_id' => 1
     ];
 });

@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Item
+ * @package App\Models
+ */
 class Item extends Model
 {
     protected $table = 'items';
@@ -20,5 +24,9 @@ class Item extends Model
 
     public function invoice(){
         return $this->belongsTo(Invoice::class, 'invoice_id', 'invoice_id');
+    }
+
+    public function claims(){
+        return $this->hasMany(ItemClaim::class, 'item_id','item_id');
     }
 }

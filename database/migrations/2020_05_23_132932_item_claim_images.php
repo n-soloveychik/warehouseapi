@@ -13,7 +13,12 @@ class ItemClaimImages extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('item_claim_images', function (Blueprint $table) {
+            $table->id('claim_image_id');
+            $table->integer('claim_id');
+            $table->string('claim_image_path');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -23,6 +28,6 @@ class ItemClaimImages extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('item_claim_images');
     }
 }

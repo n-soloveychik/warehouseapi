@@ -26,7 +26,7 @@ class ImageController extends Controller
         $names = [];
         foreach ($request->files as $file){
             $n = $s->putFile($dir, new File($file));
-            $names[] = $n;
+            $names[] = url(Storage::url($n),[], true);
          }
 
         return $names;
