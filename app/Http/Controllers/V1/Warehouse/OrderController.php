@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
+use App\Internal\ResponseFormatters\InvoiceWithItemsResponse;
 use App\Models\Invoice;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -22,10 +23,10 @@ class OrderController extends Controller
             ->get()
             ->map(function ($o) {
                 return array_merge(
-                    $o->only('order_id','warehouse_id','order_num','status_id'),
+                    $o->only('order_id', 'warehouse_id', 'order_num', 'status_id'),
                     [
-                        'status'=>$o->status->status,
-                        'invoices' => $o->invoices->map(function ($invoice){
+                        'status' => $o->status->status,
+                        'invoices' => $o->invoices->map(function ($invoice) {
                             return array_merge($invoice->only('invoice_id', 'invoice_code', 'status_id'), ['status' => $invoice->status->status]);
                         })
                     ]
@@ -38,21 +39,24 @@ class OrderController extends Controller
      * @param $orderId
      * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
      */
-    public function getInvoices(Request $request, $orderId){
-        return Invoice::with('items.status', 'items.category')
-            ->where('order_id', $orderId)
-            ->get()
-            ->map(function ($inv){
-                return array_merge(
-                    $inv->only('invoice_id', 'order_id', 'invoice_code'),
-                    array_merge([
-                        'items'=>$inv->items->map(function ($item){
-                            return array_merge(
-                                $item->only('item_id', 'status_id', 'category_id', 'category_id', 'invoice_id', 'count', 'weight','item_num', 'lot', 'image', 'size', 'description'),
-                                ['status' => $item->status->status,'category' => $item->category->category_name]);
-                        })
-                    ])
-                );
-            });
+    public function getInvoices(Request $request, $order_id)
+    {
+        return InvoiceWithItemsResponse::format(
+            Invoice::with('items.status', 'items.category')
+                ->where('order_id', $order_id)
+                ->get()
+        );
+
+    }
+
+    public function getItemsByInvoiceID(Request $request, $order_id, $invoice_id)
+    {
+        return InvoiceWithItemsResponse::format(
+            Invoice::with('items.status', 'items.category')
+                ->where('order_id', $order_id)
+                ->where('invoice_id', $invoice_id)
+                ->get()
+        );
+
     }
 }

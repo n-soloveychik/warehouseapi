@@ -33,6 +33,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
 
                 $r->group(['prefix' => '{order_id}', 'where' => ['order_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
                     $r->get('/invoices', 'OrderController@getInvoices');
+                    $r->get('/invoice/{invoice_id}/items', 'OrderController@getItemsByInvoiceID');
                     //$r->get('/{order_id}/invoice/{invoice_id}/items', '');
                 });
 

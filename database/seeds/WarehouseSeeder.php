@@ -11,6 +11,9 @@ class WarehouseSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\Warehouse::create([]);
+        \App\Models\Warehouse::create([
+            'address' => 'Saint Petersburg',
+            'img' => 'http://via.placeholder.com/640x360'
+        ]);
     }
 }
