@@ -43,8 +43,9 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 $r->get('categories', 'ItemController@getCategories');
 
                 $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+'],], function (\Illuminate\Routing\Router $r){
+                    $r->post('create-claim', 'ItemController@createClaim');
                     $r->put('status-in-stock', 'ItemController@statusInStock');
-                    $r->post('status-claim', 'ItemController@statusClaim');
+                    $r->put('status-await-delivery', 'ItemController@statusAwaitDelivery');
                     $r->get('claims', 'ItemController@claims');
                 });
             });

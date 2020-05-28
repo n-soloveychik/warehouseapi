@@ -13,7 +13,7 @@ class WarehouseSeeder extends Seeder
     {
         \App\Models\Warehouse::create([
             'address' => 'Saint Petersburg',
-            'img' => 'http://via.placeholder.com/640x360'
+            'photo' => 'http://via.placeholder.com/640x360'
         ]);
     }
 }

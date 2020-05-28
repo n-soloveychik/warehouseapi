@@ -12,8 +12,8 @@ class ItemStatusSeeder extends Seeder
     public function run()
     {
         $statuses = [
-            'В наличии',
             'Ожидает доставку',
+            'В наличии',
             'Притензии',
             'Отгружен',
         ];

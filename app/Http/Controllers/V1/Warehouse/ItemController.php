@@ -35,7 +35,7 @@ class ItemController extends Controller
     }
 
     public function statusInStock(Request $request, $item_id){
-        $item = Item::find($item_id);
+        $item = Item::with('invoice.items')->find($item_id);
         if (empty($item))
             throw new NotFoundHttpException("Unknown item_id");
 
@@ -43,13 +43,24 @@ class ItemController extends Controller
         $item->save();
 
         // @TODO Добавить проверку на статус order и статус invoice
-        // проверить все ли items в invoice были отмечены статусом 2
+        // проверить все ли items в invoice были отмечены статусом 1
         //
 
         return response(null, Response::HTTP_OK);
     }
 
-    public function statusClaim(Request $request, $item_id){
+    public function statusAwaitDelivery(Request $request, $item_id){
+        $item = Item::with('invoice.items')->find($item_id);
+        if (empty($item))
+            throw new NotFoundHttpException("Unknown item_id");
+
+        $item->status_id = 1;
+        $item->save();
+
+        return response(null, Response::HTTP_OK);
+    }
+
+    public function createClaim(Request $request, $item_id){
         $request->validate([
             'images.*' => 'required|url|min:5|max:200',
             //'claim_description' => 'required|string|min:3|max:300',
