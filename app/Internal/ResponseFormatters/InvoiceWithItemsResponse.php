@@ -22,7 +22,7 @@ class InvoiceWithItemsResponse
                                 'claims' => ClaimsResponse::format($item->claims)
                             ]
                         );
-                    })
+                    })->sortBy('item_id')->values()
                 ])
             );
         });
