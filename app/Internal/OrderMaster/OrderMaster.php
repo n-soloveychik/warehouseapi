@@ -6,7 +6,7 @@ namespace App\Internal\OrderMaster;
 
 class OrderMaster
 {
-    public function updateItemStatus($item_id, $staus_id){
+    public function updateItemStatus($item_id, $status_id){
 
     }
 }
