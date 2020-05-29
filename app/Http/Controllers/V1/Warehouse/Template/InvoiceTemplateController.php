@@ -15,7 +15,7 @@ class InvoiceTemplateController extends Controller
         return InvoiceTemplate::select('invoice_id', 'invoice_code')->orderBy('invoice_id', 'desc')->get();
     }
 
-    public function createInvoice(Request $request){
+    public function create(Request $request){
         $request->validate([
             'invoice_code' => 'required|string|unique:App\Models\InvoiceTemplate|max:50|min:3'
         ]);
@@ -32,19 +32,10 @@ class InvoiceTemplateController extends Controller
         return InvoiceItemsResponse::format($invoiceTemplate->items);
     }
 
-    public function createItem(Request $request){
-        $request->validate([
-            'category_id' => 'required|numeric|exists:App\Models\ItemCategory',
-            'item_num' => 'required|string|'
-        ]);
-
-        return response(null, Response::HTTP_CREATED);
-    }
-
     public function attach(Request $request, $invoice_id, $item_id){
         $request->validate([
             'count' => 'required|numeric',
-            'lot' => 'required|string|max:50|min:1',
+            'lot' => 'required|string|max:100|min:1',
         ]);
 
         $invoice = InvoiceTemplate::findOrFail($invoice_id);
