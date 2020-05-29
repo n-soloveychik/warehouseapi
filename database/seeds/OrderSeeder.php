@@ -11,8 +11,7 @@ class OrderSeeder extends Seeder
      */
     public function run()
     {
-        factory(\App\Models\Order::class, 5)->make()->each(function (\App\Models\Order $order) {
-            $order->save();
+        factory(\App\Models\Order::class, 5)->create()->each(function (\App\Models\Order $order) {
             $categoryIds = [];
             for ($i = 0; $i < 3; $i++) {
                 $categoryIds[$i] = rand(1, 10);

@@ -7,7 +7,7 @@ namespace App\Internal\ResponseFormatters\Template;
 use App\Models\ItemTemplate;
 use Illuminate\Support\Collection;
 
-class ItemsResponse
+class InvoiceItemsResponse
 {
     public static function format(Collection $items){
         return $items->map(function (ItemTemplate $item){

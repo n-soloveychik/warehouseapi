@@ -58,8 +58,12 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
             });
 
             $r->group(['prefix' => 'template', 'namespace' => 'Template'], function (\Illuminate\Routing\Router $r){
+                $r->get('items', 'ItemTemplateController@items');
+
                 $r->get('invoices', 'InvoiceTemplateController@invoices');
+                $r->post('invoice/create', 'InvoiceTemplateController@createInvoice');
                 $r->get('invoice/{invoice_id}/items', 'InvoiceTemplateController@items')->where('invoice_id', '[0-9]+');
+                $r->post('invoice/{invoice_id}/item/create', 'InvoiceTemplateController@createItem')->where('invoice_id', '[0-9]+');
             });
 
         });

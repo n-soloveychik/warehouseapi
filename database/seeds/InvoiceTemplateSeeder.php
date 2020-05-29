@@ -11,8 +11,7 @@ class InvoiceTemplateSeeder extends Seeder
      */
     public function run()
     {
-        factory(\App\Models\InvoiceTemplate::class, 1000)->make()->each(function (\App\Models\InvoiceTemplate $invoiceTemplate) {
-            $invoiceTemplate->save();
+        factory(\App\Models\InvoiceTemplate::class, 1000)->create()->each(function (\App\Models\InvoiceTemplate $invoiceTemplate) {
             $categoryIds = [];
             for ($i = 0; $i < 3; $i++) {
                 $categoryIds[$i] = rand(1, 10);
