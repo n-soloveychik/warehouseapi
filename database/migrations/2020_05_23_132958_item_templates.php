@@ -13,7 +13,16 @@ class ItemTemplates extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('item_templates', function (Blueprint $table) {
+            $table->id('item_id');
+            $table->integer('category_id');
+            $table->string('item_num');
+            $table->string('image');
+            $table->string('size');
+            $table->float('weight',4,1);
+            $table->string('description')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -23,6 +32,6 @@ class ItemTemplates extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('item_templates');
     }
 }

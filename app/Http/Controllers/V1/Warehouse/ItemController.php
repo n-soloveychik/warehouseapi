@@ -100,10 +100,7 @@ class ItemController extends Controller
     }
 
     public function claims($item_id){
-        $item = Item::with('claims.images')->find($item_id);
-        if (empty($item))
-            throw new NotFoundHttpException("Unknown item_id");
-
+        $item = Item::with('claims.images')->findOrFail($item_id);
         return ClaimsResponse::format($item->claims);
     }
 

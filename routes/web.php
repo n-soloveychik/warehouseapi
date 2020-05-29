@@ -28,12 +28,13 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
 
         $r->group(['namespace' => 'Warehouse'], function(\Illuminate\Routing\Router $r){
             $r->get('warehouses', 'WarehouseController@getWarehouses');
+            $r->group(['prefix' => 'warehouse'], function (\Illuminate\Routing\Router $r){
+                $r->get('{warehouse_id}/order/available', 'WarehouseController@availableOrders')->where('warehouse_id', '[0-9]+');
+            });
             $r->group(['prefix' => 'order'], function (\Illuminate\Routing\Router $r){
-                $r->get('available', 'OrderController@getAvailable');
-
                 $r->group(['prefix' => '{order_id}', 'where' => ['order_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
                     $r->get('/invoices', 'OrderController@getInvoices');
-                    $r->get('/invoice/{invoice_id}/items', 'OrderController@getItemsByInvoiceID');
+                    $r->get('/invoice/{invoice_id}/items', 'OrderController@getItemsByInvoiceID')->where('invoice_id', '[0-9]+');
                     //$r->get('/{order_id}/invoice/{invoice_id}/items', '');
                 });
 
@@ -53,8 +54,14 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
             //$r->get('');
 
             $r->get('user', function (\Illuminate\Http\Request $r){
-                dd($r->user());
+                return $r->user();
             });
+
+            $r->group(['prefix' => 'template', 'namespace' => 'Template'], function (\Illuminate\Routing\Router $r){
+                $r->get('invoices', 'InvoiceTemplateController@invoices');
+                $r->get('invoice/{invoice_id}/items', 'InvoiceTemplateController@items')->where('invoice_id', '[0-9]+');
+            });
+
         });
 
     });

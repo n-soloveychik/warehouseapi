@@ -13,7 +13,12 @@ class InvoiceTemplates extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('invoice_templates', function (Blueprint $table) {
+            $table->id('invoice_id');
+            $table->string('invoice_code');
+
+            $table->timestamps();
+        });
     }
 
     /**
@@ -23,6 +28,6 @@ class InvoiceTemplates extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('invoice_templates');
     }
 }

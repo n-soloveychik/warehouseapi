@@ -22,7 +22,7 @@ class Items extends Migration
             $table->float('weight',4,1);
             $table->string('item_num');
             $table->string('lot');
-            $table->string('image')->nullable();
+            $table->string('image');
             $table->string('size');
             $table->string('description')->nullable();
             $table->timestamps();
