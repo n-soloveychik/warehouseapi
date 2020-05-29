@@ -24,7 +24,7 @@ class OrderMaster
         if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id == 3;})->count() > 0)
             return 3;
 
-        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != 2;})->count() == 0)
+        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != 4;})->count() == 0)
             return 4;
 
         if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != 1 && $invoice->status_id != 3;})->count() >0)
