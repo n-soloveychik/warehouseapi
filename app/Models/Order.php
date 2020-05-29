@@ -19,6 +19,6 @@ class Order extends Model
     }
 
     public function invoices(){
-        return $this->hasMany(Invoice::class, 'order_id', 'order_id');
+        return $this->hasMany(Invoice::class, 'order_id', 'order_id')->orderBy('invoice_id');
     }
 }

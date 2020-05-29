@@ -2,35 +2,52 @@ version: "3.8"
 
 
 services:
-    nginx:
-        image: nginx:alpine
-        volumes:
-            - ${APP_PATH_HOST}:/var/www/html
-            - ./nginx:/etc/nginx/conf.d
-        networks:
-            - backend
-            - web
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-            - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
-            - "traefik.http.routers.warehouseapi.rule=Host(`warehouseapi.iopk.in`)"
-            - "traefik.http.routers.warehouseapi.entrypoints=web"
-            - "traefik.http.routers.warehouseapi.middlewares=redirect-to-https"
-            - "traefik.http.routers.warehouseapi-secured.rule=Host(`warehouseapi.iopk.in`)"
-            - "traefik.http.routers.warehouseapi-secured.tls.certresolver=mytlschallenge"
-            - "traefik.http.routers.warehouseapi-secured.entrypoints=web-secured"
+  front:
+    image: nginx:alpine
+    volumes:
+      - ${FRONT_PATH}:/usr/share/nginx/html
+      - ./front_nginx:/etc/nginx/conf.d/
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      - "traefik.http.routers.warehouse.rule=Host(`warehouse.iopk.in`)"
+      - "traefik.http.routers.warehouse.entrypoints=web"
+      - "traefik.http.routers.warehouse.middlewares=redirect-to-https"
+      - "traefik.http.routers.warehouse-secured.rule=Host(`warehouse.iopk.in`)"
+      - "traefik.http.routers.warehouse-secured.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.warehouse-secured.entrypoints=web-secured"
+  api:
+    image: nginx:alpine
+    volumes:
+      - ${API_PATH}:/var/www/html
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - backend
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      - "traefik.http.routers.warehouseapi.rule=Host(`warehouseapi.iopk.in`)"
+      - "traefik.http.routers.warehouseapi.entrypoints=web"
+      - "traefik.http.routers.warehouseapi.middlewares=redirect-to-https"
+      - "traefik.http.routers.warehouseapi-secured.rule=Host(`warehouseapi.iopk.in`)"
+      - "traefik.http.routers.warehouseapi-secured.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.warehouseapi-secured.entrypoints=web-secured"
 
-    php:
-        build:
-            context: ./php
-        volumes:
-            - ${APP_PATH_HOST}:/var/www/html
-        networks:
-            - backend
+  php:
+    build:
+      context: ./php
+    volumes:
+      - ${API_PATH}:/var/www/html
+    networks:
+      - backend
 
 networks:
-    web:
-        external: true
-    backend:
-        external: true
+  web:
+    external: true
+  backend:
+    external: true
