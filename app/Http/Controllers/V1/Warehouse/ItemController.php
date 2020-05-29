@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
+use App\Internal\OrderMaster\Exceptions\OrderMasterException;
+use App\Internal\OrderMaster\ItemMaster;
 use App\Internal\ResponseFormatters\ClaimsResponse;
 use App\Models\Item;
 use App\Models\ItemCategory;
@@ -11,7 +13,7 @@ use App\Models\ItemClaimImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ItemController extends Controller
 {
@@ -34,29 +36,20 @@ class ItemController extends Controller
         return ItemCategory::select('category_id', 'category_name')->get();
     }
 
-    public function statusInStock(Request $request, $item_id){
-        $item = Item::with('invoice.items')->find($item_id);
-        if (empty($item))
-            throw new NotFoundHttpException("Unknown item_id");
-
-        $item->status_id = 2;
-        $item->save();
-
-        // @TODO Добавить проверку на статус order и статус invoice
-        // проверить все ли items в invoice были отмечены статусом 1
-        //
+    public function statusAwaitDelivery(Request $request, $item_id){
+        $item = Item::findOrFail($item_id);
+        ItemMaster::updateStatus($item, 1);
 
         return response(null, Response::HTTP_OK);
     }
 
-    public function statusAwaitDelivery(Request $request, $item_id){
-        $item = Item::with('invoice.items')->find($item_id);
-        if (empty($item))
-            throw new NotFoundHttpException("Unknown item_id");
-
-        $item->status_id = 1;
-        $item->save();
-
+    public function statusInStock(Request $request, $item_id){
+        $item = Item::findOrFail($item_id);
+        try {
+            ItemMaster::updateStatus($item, 2);
+        }catch (OrderMasterException $e){
+            throw new HttpException($e->getCode(), $e->getMessage());
+        }
         return response(null, Response::HTTP_OK);
     }
 
@@ -66,9 +59,7 @@ class ItemController extends Controller
             //'claim_description' => 'required|string|min:3|max:300',
         ]);
 
-        $item = Item::find($item_id);
-        if (empty($item))
-            throw new NotFoundHttpException("Unknown item_id");
+        $item = Item::findOrFail($item_id);
 
         $imgModels = [];
         foreach ($request->get('images') as $image){
@@ -84,19 +75,21 @@ class ItemController extends Controller
         ]);
         $claim->images()->saveMany($imgModels);
 
-        // Ставим заказу, счету, item статус claim
-        $item->status_id = 3;
-        $item->save();
-
-        $invoice = $item->invoice;
-        $invoice->status_id = 3;
-        $invoice->save();
-
-        $order = $invoice->order;
-        $order->status_id = 3;
-        $order->save();
+        ItemMaster::updateStatus($item, 3);
 
         return response(null, Response::HTTP_CREATED);
+    }
+
+    public function closeClaim(Request $request, $claim_id){
+        $claim = ItemClaim::with('item')->findOrFail($claim_id);
+        $claim->closed = 1;
+        $claim->save();
+
+        try{
+            ItemMaster::updateStatus($claim->item, 2);
+        }catch (\Exception $e){}
+
+        return response(null, Response::HTTP_OK);
     }
 
     public function claims($item_id){

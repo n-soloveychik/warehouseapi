@@ -17,6 +17,7 @@ class ItemClaims extends Migration
             $table->id('claim_id');
             $table->integer('item_id');
             $table->string('claim_description',300);
+            $table->boolean('closed')->default(0);
             $table->timestamps();
         });
     }

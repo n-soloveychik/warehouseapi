@@ -31,6 +31,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
             $r->group(['prefix' => 'warehouse'], function (\Illuminate\Routing\Router $r){
                 $r->get('{warehouse_id}/order/available', 'WarehouseController@availableOrders')->where('warehouse_id', '[0-9]+');
             });
+            $r->delete('claim/{claim_id}', 'ItemController@closeClaim')->where('claim_id', '[0-9]+');
             $r->group(['prefix' => 'order'], function (\Illuminate\Routing\Router $r){
                 $r->group(['prefix' => '{order_id}', 'where' => ['order_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
                     $r->get('/invoices', 'OrderController@getInvoices');
@@ -44,6 +45,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
 
                 $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+'],], function (\Illuminate\Routing\Router $r){
                     $r->post('claim', 'ItemController@createClaim');
+
                     $r->put('status-in-stock', 'ItemController@statusInStock');
                     $r->put('status-await-delivery', 'ItemController@statusAwaitDelivery');
                     $r->get('claims', 'ItemController@claims');
