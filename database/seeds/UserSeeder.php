@@ -17,7 +17,13 @@ class UserSeeder extends Seeder
             'email_verified_at' => \Carbon\Carbon::now(),
             'password' => \Illuminate\Support\Facades\Hash::make('passwd'),
         ]);
-
-        $u->createToken('main');
+        //$u->createToken('main');
+        $u = \App\User::create([
+            'name' => 'TMS',
+            'email' => 'dev@nashdvor-sz.ru',
+            'email_verified_at' => \Carbon\Carbon::now(),
+            'password' => \Illuminate\Support\Facades\Hash::make('burnd'),
+        ]);
+        //$u->createToken('main');
     }
 }
