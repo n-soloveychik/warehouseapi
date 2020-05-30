@@ -28,7 +28,9 @@ class OrderController extends Controller
 
         $order = OrderMaster::make(1, $request->get('order_num'));
         foreach ($request->get('invoices') as $invoice) {
-            OrderMaster::addInvoice($order, InvoiceTemplate::with('items')->find($invoice['invoice_id']));
+            for ($i=0; $i< $invoice['count']; $i++){
+                OrderMaster::addInvoice($order, InvoiceTemplate::with('items')->find($invoice['invoice_id']));
+            }
         }
     }
 
