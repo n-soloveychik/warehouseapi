@@ -10,10 +10,15 @@ use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class OrderController extends Controller
 {
 
+    /**
+     * @param Request $request
+     */
     public function create(Request $request){
         $request->validate([
             'order_num' => 'required|string|unique:App\Models\Order|min:3|max:50',
@@ -57,4 +62,5 @@ class OrderController extends Controller
         );
 
     }
+
 }

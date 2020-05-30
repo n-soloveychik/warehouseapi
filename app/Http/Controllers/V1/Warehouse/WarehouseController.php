@@ -19,6 +19,7 @@ class WarehouseController extends Controller
         return Order::with('status', 'invoices.status')
             ->where('status_id', '<', 5)
             ->where('warehouse_id', $warehouse_id)
+            ->orderBy('order_id')
             ->get()
             ->map(function ($o) {
                 return array_merge(

@@ -3,6 +3,7 @@
 
 namespace App\Internal\OrderMaster;
 
+use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\Order;
 

@@ -17,6 +17,10 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ItemController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function createCategory(Request $request){
         $request->validate([
             'category_name' => 'required|min:3|max:100'
@@ -32,10 +36,20 @@ class ItemController extends Controller
 
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function getCategories(Request $request){
         return ItemCategory::select('category_id', 'category_name')->get();
     }
 
+    /**
+     * @param Request $request
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Exception
+     */
     public function statusAwaitDelivery(Request $request, $item_id){
         $item = Item::findOrFail($item_id);
         ItemMaster::updateStatus($item, 1);
@@ -43,6 +57,12 @@ class ItemController extends Controller
         return response(null, Response::HTTP_OK);
     }
 
+    /**
+     * @param Request $request
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Exception
+     */
     public function statusInStock(Request $request, $item_id){
         $item = Item::findOrFail($item_id);
         try {
@@ -53,6 +73,12 @@ class ItemController extends Controller
         return response(null, Response::HTTP_OK);
     }
 
+    /**
+     * @param Request $request
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Exception
+     */
     public function createClaim(Request $request, $item_id){
         $request->validate([
             'images.*' => 'required|url|min:5|max:200',
@@ -80,6 +106,11 @@ class ItemController extends Controller
         return response(null, Response::HTTP_CREATED);
     }
 
+    /**
+     * @param Request $request
+     * @param $claim_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function closeClaim(Request $request, $claim_id){
         $claim = ItemClaim::with('item')->findOrFail($claim_id);
         $claim->closed = 1;
@@ -92,10 +123,13 @@ class ItemController extends Controller
         return response(null, Response::HTTP_OK);
     }
 
+    /**
+     * @param $item_id
+     * @return \Illuminate\Support\Collection
+     */
     public function claims($item_id){
         $item = Item::with('claims.images')->findOrFail($item_id);
         return ClaimsResponse::format($item->claims);
     }
-
 
 }

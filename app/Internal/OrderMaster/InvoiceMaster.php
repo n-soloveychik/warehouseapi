@@ -24,6 +24,11 @@ class InvoiceMaster
         ]);
     }
 
+    public static function delete(Invoice $invoice) : bool{
+        $invoice->items()->delete();
+        return $invoice->delete();
+    }
+
     public function updateInvoiceStatus(){
         $this->invoice->load('items.claims', 'order');
 
