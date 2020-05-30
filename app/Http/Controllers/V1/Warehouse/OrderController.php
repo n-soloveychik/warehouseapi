@@ -4,14 +4,28 @@ namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
+use App\Internal\OrderMaster\OrderMaster;
 use App\Internal\ResponseFormatters\InvoiceWithItemsResponse;
 use App\Models\Invoice;
+use App\Models\InvoiceTemplate;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
 
+    public function create(Request $request){
+        $request->validate([
+            'order_num' => 'required|string|unique:App\Models\Order|min:3|max:50',
+            'invoices.*.count' => 'required|numeric',
+            'invoices.*.invoice_id' => 'required|numeric|exists:App\Models\InvoiceTemplate',
+        ]);
+
+        $order = OrderMaster::make(1, $request->get('order_num'));
+        foreach ($request->get('invoices') as $invoice) {
+            OrderMaster::addInvoice($order, InvoiceTemplate::with('items')->find($invoice['invoice_id']));
+        }
+    }
 
     /**
      * @param Request $request
@@ -25,9 +39,14 @@ class OrderController extends Controller
                 ->where('order_id', $order_id)
                 ->get()
         );
-
     }
 
+    /**
+     * @param Request $request
+     * @param $order_id
+     * @param $invoice_id
+     * @return \Illuminate\Support\Collection
+     */
     public function getItemsByInvoiceID(Request $request, $order_id, $invoice_id)
     {
         return InvoiceWithItemsResponse::format(

@@ -5,7 +5,9 @@ namespace App\Internal\OrderMaster;
 
 
 use App\Internal\OrderMaster\Exceptions\OrderMasterException;
+use App\Models\Invoice;
 use App\Models\Item;
+use App\Models\ItemTemplate;
 use Symfony\Component\HttpFoundation\Response;
 
 class ItemMaster
@@ -19,6 +21,21 @@ class ItemMaster
         // $item->refresh();
         $this->item = $item;
         $this->invoiceMaster = new InvoiceMaster($item->invoice);
+    }
+
+    public static function make(Invoice $invoice, ItemTemplate $itemTemplate, int $count, string $lot) : Item{
+        return Item::create([
+            'status_id' => 1,
+            'invoice_id' => $invoice->invoice_id,
+            'category_id' => $itemTemplate->category_id,
+            'count' => $count,
+            'lot' => $lot,
+            'weight' => $itemTemplate->weight,
+            'item_num' => $itemTemplate->item_num,
+            'image' => $itemTemplate->image,
+            'size' => $itemTemplate->size,
+            'description' => $itemTemplate->description,
+        ]);
     }
 
     public static function updateStatus(Item $item, $status_id){

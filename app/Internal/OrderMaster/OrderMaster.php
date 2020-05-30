@@ -3,6 +3,7 @@
 
 namespace App\Internal\OrderMaster;
 
+use App\Models\InvoiceTemplate;
 use App\Models\Order;
 
 class OrderMaster
@@ -12,6 +13,23 @@ class OrderMaster
     {
         //$order->refresh();
         $this->order = $order;
+    }
+
+    public static function make(int $warehouseId, string $orderNum): Order{
+        return Order::create([
+            'warehouse_id' => $warehouseId,
+            'status_id' => 1,
+            'order_num' => $orderNum,
+        ]);
+    }
+
+    public static function addInvoice(Order $order, InvoiceTemplate $invoiceTemplate){
+        // Create invoice
+        $invoice = InvoiceMaster::make($order->order_id, $invoiceTemplate->invoice_code);
+        // add items to invoice
+        foreach ($invoiceTemplate->items as $item){
+            ItemMaster::make($invoice, $item, $item->pivot->count, $item->pivot->lot);
+        }
     }
 
     public static function updateOrderStatus(Order $order){
