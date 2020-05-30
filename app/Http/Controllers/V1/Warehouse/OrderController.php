@@ -33,6 +33,15 @@ class OrderController extends Controller
     }
 
     /**
+     * @param $order_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function delete($order_id){
+        OrderMaster::delete(Order::findOrFail($order_id));
+        return response(null, Response::HTTP_OK);
+    }
+
+    /**
      * @param Request $request
      * @param $orderId
      * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection

@@ -24,6 +24,13 @@ class OrderMaster
         ]);
     }
 
+    public static function delete(Order $order) : bool {
+        foreach ($order->invoices as $invoice){
+            InvoiceMaster::delete($invoice);
+        }
+        return $order->delete();
+    }
+
     public static function addInvoice(Order $order, InvoiceTemplate $invoiceTemplate){
         // Create invoice
         $invoice = InvoiceMaster::make($order->order_id, $invoiceTemplate->invoice_code);

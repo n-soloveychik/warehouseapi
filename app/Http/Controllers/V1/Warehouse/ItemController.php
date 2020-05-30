@@ -18,6 +18,15 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class ItemController extends Controller
 {
     /**
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function delete($item_id){
+        ItemMaster::delete(Item::findOrFail($item_id));
+        return response(null, Response::HTTP_OK);
+    }
+
+    /**
      * @param Request $request
      * @return mixed
      */

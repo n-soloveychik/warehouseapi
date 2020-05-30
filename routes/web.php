@@ -37,6 +37,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 // Create order
                 $r->post('/','OrderController@create');
                 $r->group(['prefix' => '{order_id}', 'where' => ['order_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
+                    $r->delete('/', 'OrderController@delete');
                     $r->get('/invoices', 'OrderController@getInvoices');
                     $r->group(['prefix'=>'invoice'],function (\Illuminate\Routing\Router $r){
                         $r->group(['prefix' => '{invoice_id}','where' => ['invoice_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
@@ -63,6 +64,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 $r->get('categories', 'ItemController@getCategories');
 
                 $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+'],], function (\Illuminate\Routing\Router $r){
+                    $r->delete('/', 'ItemController@delete');
                     $r->post('claim', 'ItemController@createClaim');
 
                     $r->put('status-in-stock', 'ItemController@statusInStock');

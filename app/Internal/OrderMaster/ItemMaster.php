@@ -38,6 +38,10 @@ class ItemMaster
         ]);
     }
 
+    public static function delete(Item $item) : bool {
+        return $item->delete();
+    }
+
     public static function updateStatus(Item $item, $status_id){
         $m = new ItemMaster($item);
         if ($status_id != 3)
