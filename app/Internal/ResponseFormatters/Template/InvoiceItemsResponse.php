@@ -19,6 +19,8 @@ class InvoiceItemsResponse
                     'lot' => $item->pivot->lot,
                 ]
             );
-        });
+        })->sortBy(function ($item){
+            return $item['lot'];
+        })->values();
     }
 }

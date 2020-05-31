@@ -38,7 +38,7 @@ class Kernel extends HttpKernel
             // \Illuminate\Session\Middleware\AuthenticateSession::class,
             //\Illuminate\View\Middleware\ShareErrorsFromSession::class,
             //\App\Http\Middleware\VerifyCsrfToken::class,
-            'throttle:120,1',
+            'throttle:820,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             EnsureFrontendRequestsAreStateful::class,
         ],
