@@ -12,8 +12,9 @@ class InvoiceItemsResponse
     public static function format(Collection $items){
         return $items->map(function (ItemTemplate $item){
             return array_merge(
-                $item->only('item_id', 'category_id', 'item_num', 'image', 'size', 'weight', 'description'),
+                $item->only('item_id', 'category_id', 'item_num', 'image', 'size',  'description'),
                 [
+                    'weight' => $item->weight * $item->pivot->count,
                     'category' => $item->category->category_name,
                     'count' => $item->pivot->count,
                     'lot' => $item->pivot->lot,

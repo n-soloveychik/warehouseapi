@@ -30,7 +30,7 @@ class ItemMaster
             'category_id' => $itemTemplate->category_id,
             'count' => $count,
             'lot' => $lot,
-            'weight' => $itemTemplate->weight,
+            'weight' => $itemTemplate->weight * $count,
             'item_num' => $itemTemplate->item_num,
             'image' => $itemTemplate->image,
             'size' => $itemTemplate->size,

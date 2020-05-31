@@ -36,7 +36,7 @@ class ItemTemplateController extends Controller
             'category_id' => 'required|numeric|exists:App\Models\ItemCategory',
             'item_num' => 'required|unique:App\Models\ItemTemplate|string|min:3|max:50',
             'count' => 'required|numeric',
-            'image' => 'url|min:3|max:200',
+            'image' => 'url|max:200',
             'size' => 'required|string|min:1|max:100',
             'weight' => 'required|numeric'
         ]);

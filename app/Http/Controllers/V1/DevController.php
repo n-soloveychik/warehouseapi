@@ -25,15 +25,17 @@ class DevController extends Controller
             ]);
         }
 
-        $w = str_replace(',', '.', $request->get('weight'));
         $count = (int)$request->get('count');
+        if ($count > 0) {
+            $w = (float)str_replace(',', '.', $request->get('weight')) / $count;
+        }
         $lot = $request->get('lot');
 
         $itd = [
             'image' => 'http://via.placeholder.com/640x360',
             'category_id' => $request->get('category'),
             'item_num' => $request->get('num'),
-            'weight' => (float)$w,
+            'weight' => $w,
             'size' => $request->get('size'),
         ];
 
