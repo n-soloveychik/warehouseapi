@@ -82,6 +82,13 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 $r->get('invoices', 'InvoiceTemplateController@invoices');
                 $r->post('item', 'ItemTemplateController@create');
 
+                $r->group(['prefix'=>'item'], function (\Illuminate\Routing\Router $r){
+                    $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
+                        $r->put('image', 'ItemTemplateController@updateImage');
+                    });
+
+                });
+
                 $r->group(['prefix' => 'invoice'], function (\Illuminate\Routing\Router $r){
                     $r->post('/', 'InvoiceTemplateController@create');
 

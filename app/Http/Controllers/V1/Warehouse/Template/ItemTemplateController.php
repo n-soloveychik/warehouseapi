@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ItemTemplateController extends Controller
 {
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function items(){
         return ItemResponse::format(
             QueryBuilder::for(ItemTemplate::class)
@@ -24,12 +27,16 @@ class ItemTemplateController extends Controller
         );
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function create(Request $request){
         $request->validate([
             'category_id' => 'required|numeric|exists:App\Models\ItemCategory',
             'item_num' => 'required|unique:App\Models\ItemTemplate|string|min:3|max:50',
             'count' => 'required|numeric',
-            'image' => 'string|min:3|max:200',
+            'image' => 'url|min:3|max:200',
             'size' => 'required|string|min:1|max:100',
             'weight' => 'required|numeric'
         ]);
@@ -48,5 +55,22 @@ class ItemTemplateController extends Controller
         ]);
 
         return response(['item_id' => $item->item_id], Response::HTTP_CREATED);
+    }
+
+    /**
+     * @param Request $request
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function updateImage(Request $request, $item_id){
+        $request->validate([
+            'image' => 'required|url|min:3|max:200'
+        ]);
+
+        $item = ItemTemplate::findOrFail($item_id);
+        $item->image = $request->get('image');
+        $item->save();
+
+        return response(null, Response::HTTP_OK);
     }
 }
