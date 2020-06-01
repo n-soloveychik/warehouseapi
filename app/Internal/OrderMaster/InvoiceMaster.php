@@ -31,11 +31,12 @@ class InvoiceMaster
 
     public function updateInvoiceStatus(){
         $this->invoice->load('items.claims', 'order');
-
-        $this->invoice->status_id = $this->getStatus();
-        $this->invoice->save();
-        OrderMaster::updateOrderStatus($this->invoice->order);
-
+        $newStatus = $this->getStatus();
+        if ($this->invoice->status_id != $newStatus) {
+            $this->invoice->status_id = $newStatus;
+            $this->invoice->save();
+            OrderMaster::updateOrderStatus($this->invoice->order);
+        }
     }
 
     protected function getStatus() : int {

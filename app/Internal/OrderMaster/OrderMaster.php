@@ -42,8 +42,11 @@ class OrderMaster
 
     public static function updateOrderStatus(Order $order){
         $m = new self($order);
-        $order->status_id = $m->getStatus();
-        $order->save();
+        $newStatus = $m->getStatus();
+        if ($newStatus != $order->status_id){
+            $order->status_id = $m->getStatus();
+            $order->save();
+        }
     }
 
     public function getStatus(){

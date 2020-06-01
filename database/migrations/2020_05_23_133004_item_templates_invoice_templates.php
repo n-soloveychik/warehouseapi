@@ -14,12 +14,13 @@ class ItemTemplatesInvoiceTemplates extends Migration
     public function up()
     {
         Schema::create('item_templates_invoice_templates', function (Blueprint $table) {
+            $table->id();
             $table->integer('item_id');
             $table->integer('invoice_id');
             $table->integer('count');
             $table->string('lot');
 
-            $table->primary(['item_id', 'invoice_id']);
+            $table->index(['item_id', 'invoice_id']);
         });
     }
 

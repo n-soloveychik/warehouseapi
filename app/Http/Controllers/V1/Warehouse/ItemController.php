@@ -63,7 +63,7 @@ class ItemController extends Controller
         $item = Item::findOrFail($item_id);
         ItemMaster::updateStatus($item, 1);
 
-        return response(null, Response::HTTP_OK);
+        return response($item->only('item_id', 'status_id'), Response::HTTP_OK);
     }
 
     /**
@@ -79,7 +79,7 @@ class ItemController extends Controller
         }catch (OrderMasterException $e){
             throw new HttpException($e->getCode(), $e->getMessage());
         }
-        return response(null, Response::HTTP_OK);
+        return response($item->only('item_id', 'status_id'), Response::HTTP_OK);
     }
 
     /**
@@ -112,7 +112,7 @@ class ItemController extends Controller
 
         ItemMaster::updateStatus($item, 3);
 
-        return response(null, Response::HTTP_CREATED);
+        return response($item->only('item_id', 'status_id'), Response::HTTP_CREATED);
     }
 
     /**

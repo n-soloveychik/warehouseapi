@@ -39,7 +39,7 @@ class InvoiceTemplateController extends Controller
         ]);
 
         $invoice = InvoiceTemplate::findOrFail($invoice_id);
-        if ($invoice->items->filter(function ($item) use ($item_id) {return $item->item_id == $item_id;})->count() > 0) {
+        if ($invoice->items->filter(function ($item) use ($item_id, $request) {return $item->item_id == $item_id && $item->pivot->lot == $request->get('lot');})->count() > 0) {
             return response(null, Response::HTTP_CONFLICT);
         }
 

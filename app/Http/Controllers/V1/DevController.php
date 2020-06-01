@@ -28,6 +28,8 @@ class DevController extends Controller
         $count = (int)$request->get('count');
         if ($count > 0) {
             $w = (float)str_replace(',', '.', $request->get('weight')) / $count;
+        }else{
+            $w = (float)str_replace(',', '.', $request->get('weight'));
         }
         $lot = $request->get('lot');
 
@@ -46,7 +48,7 @@ class DevController extends Controller
             $itemTemplate = ItemTemplate::create($itd);
         }
 
-        if (empty($invoice->items()->where('item_num', $request->get('num'))->first())) {
+        if (empty($invoice->items()->where('item_num', $request->get('num'))->where('lot', $lot)->first())) {
             $invoice->items()->attach($itemTemplate, ['count' => $count, 'lot' => $lot]);
         }
         return [$invoice, $count];
