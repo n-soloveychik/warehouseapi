@@ -19,7 +19,6 @@ class WarehouseController extends Controller
         return Order::with('status', 'invoices.status')
             ->where('status_id', '<', 5)
             ->where('warehouse_id', $warehouse_id)
-            ->orderBy('order_id')
             ->get()
             ->map(function ($o) {
                 return array_merge(
@@ -27,10 +26,10 @@ class WarehouseController extends Controller
                     [
                         'status' => $o->status->status,
                         'invoices' => $o->invoices->map(function ($invoice) {
-                            return array_merge($invoice->only('invoice_id', 'invoice_code', 'status_id'), ['status' => $invoice->status->status]);
-                        })
+                            return array_merge($invoice->only('invoice_id', 'invoice_code', 'status_id', 'count'), ['status' => $invoice->status->status]);
+                        })->sortBy('invoice_code')->values()
                     ]
                 );
-            });
+            })->sortBy('order_num')->values();
     }
 }

@@ -73,11 +73,25 @@ class ItemController extends Controller
      * @throws \Exception
      */
     public function statusInStock(Request $request, $item_id){
+        $request->validate([
+            'count' => 'numeric'
+        ]);
         $item = Item::findOrFail($item_id);
-        try {
-            ItemMaster::updateStatus($item, 2);
-        }catch (OrderMasterException $e){
-            throw new HttpException($e->getCode(), $e->getMessage());
+        $count = $request->get('count');
+        if (empty($count) || $request->get('count') > $item->count){
+            $item->count_in_stock = $item->count;
+            $item->save();
+        }else{
+            $item->count_in_stock = $count;
+            $item->save();
+        }
+
+        if ($item->count_in_stock == $item->count) {
+            try {
+                ItemMaster::updateStatus($item, 2);
+            } catch (OrderMasterException $e) {
+                throw new HttpException($e->getCode(), $e->getMessage());
+            }
         }
         return response($item->only('item_id', 'status_id'), Response::HTTP_OK);
     }
