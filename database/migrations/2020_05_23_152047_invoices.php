@@ -18,6 +18,7 @@ class Invoices extends Migration
             $table->integer('order_id')->index();
             $table->integer('status_id')->index();
             $table->string('invoice_code');
+            $table->integer('count')->default(1);
             $table->timestamps();
         });
     }

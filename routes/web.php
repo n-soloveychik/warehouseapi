@@ -75,6 +75,10 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 });
             });
 
+            $r->group(['prefix' => 'items'], function (\Illuminate\Routing\Router $r){
+                $r->put('status-in-stock', 'ItemsController@statusInStock');
+            });
+
             $r->get('user', function (\Illuminate\Http\Request $r){
                 return $r->user();
             });

@@ -31,12 +31,12 @@ class OrderMaster
         return $order->delete();
     }
 
-    public static function addInvoice(Order $order, InvoiceTemplate $invoiceTemplate){
+    public static function addInvoice(Order $order, InvoiceTemplate $invoiceTemplate, $count = 1){
         // Create invoice
-        $invoice = InvoiceMaster::make($order->order_id, $invoiceTemplate->invoice_code);
+        $invoice = InvoiceMaster::make($order->order_id, $invoiceTemplate->invoice_code, $count);
         // add items to invoice
         foreach ($invoiceTemplate->items as $item){
-            ItemMaster::make($invoice, $item, $item->pivot->count, $item->pivot->lot);
+            ItemMaster::make($invoice, $item, $item->pivot->count * $count, $item->pivot->lot);
         }
     }
 

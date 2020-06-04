@@ -42,7 +42,7 @@ class ItemMaster
         return $item->delete();
     }
 
-    public static function updateStatus(Item $item, $status_id){
+    public static function updateStatus(Item $item, $status_id, $count=1){
         $m = new ItemMaster($item);
         if ($status_id != 3)
             $m->failIfItemHaveClaims();

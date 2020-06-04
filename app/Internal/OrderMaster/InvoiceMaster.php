@@ -16,11 +16,12 @@ class InvoiceMaster
         //$invoice->refresh();
         $this->invoice = $invoice;
     }
-    public static function make(int $orderId, string $invoiceCode):Invoice{
+    public static function make(int $orderId, string $invoiceCode, int $count = 1):Invoice{
         return Invoice::create([
             'order_id' => $orderId,
             'status_id' => 1,
             'invoice_code' => $invoiceCode,
+            'count' => $count,
         ]);
     }
 

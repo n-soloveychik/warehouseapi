@@ -19,6 +19,7 @@ class Items extends Migration
             $table->integer('category_id')->index();
             $table->integer('invoice_id')->index();
             $table->integer('count');
+            $table->integer('count_in_stock')->default(0);
             $table->float('weight',4,1);
             $table->string('item_num');
             $table->string('lot');
