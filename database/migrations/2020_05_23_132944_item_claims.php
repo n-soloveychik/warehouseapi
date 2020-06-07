@@ -16,6 +16,7 @@ class ItemClaims extends Migration
         Schema::create('item_claims', function (Blueprint $table) {
             $table->id('claim_id');
             $table->integer('item_id');
+            $table->string('num')->nullable();
             $table->string('claim_description',300);
             $table->boolean('closed')->default(0);
             $table->timestamps();

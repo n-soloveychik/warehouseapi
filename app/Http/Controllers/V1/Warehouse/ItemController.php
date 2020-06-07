@@ -96,7 +96,10 @@ class ItemController extends Controller
             ItemMaster::updateStatus($claim->item);
         }catch (\Exception $e){}
 
-        return response(null, Response::HTTP_OK);
+        return response([
+            'invoice_code' => $claim->item->invoice->invoice_code,
+            'claim_id' => $claim->claim_id,
+        ], Response::HTTP_OK);
     }
 
     /**
