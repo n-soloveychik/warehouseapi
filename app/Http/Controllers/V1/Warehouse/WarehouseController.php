@@ -24,9 +24,10 @@ class WarehouseController extends Controller
 
     }
 
-    public function orders($warehouse_id){
-        return OrderFormatter::formatMany(Order::with('status', 'invoices.status')
+    public function ordersWithClaims($warehouse_id){
+        return OrderFormatter::ordersWithClaimsResponse(Order::with('status', 'invoices.status')
             ->where('warehouse_id', $warehouse_id)
+            ->where('status_id', 3)
             ->get()
         );
     }

@@ -6,6 +6,7 @@ namespace App\Internal\ResponseFormatters\Formatter;
 
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class OrderFormatter
 {
@@ -26,6 +27,24 @@ class OrderFormatter
     public static function formatMany(Collection $orders){
         return $orders->map(function ($o){
             return self::format($o);
+        })->sortBy('order_num')->values();
+    }
+
+
+    public static function ordersWithClaimsResponse(Collection $orders){
+        return $orders->map(function (Order $o){
+            return array_merge(
+                $o->only('order_id', 'warehouse_id', 'order_num', 'status_id'),
+                [
+                    'status' => $o->status->status,
+                    'count_claims' => DB::table('invoices')
+                        ->join('items', 'invoices.invoice_id', '=','items.invoice_id')
+                        ->join('item_claims', 'item_claims.item_id', '=', 'items.item_id')
+                        ->where('invoices.order_id', '=', $o->order_id)
+                        ->where('item_claims.closed', '0')
+                        ->select(DB::raw('COUNT(item_claims.claim_id)'))->first()->count,
+                ]
+            );
         })->sortBy('order_num')->values();
     }
 }

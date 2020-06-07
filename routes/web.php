@@ -33,7 +33,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
             $r->get('warehouses', 'WarehouseController@getWarehouses');
             $r->group(['prefix' => 'warehouse'], function (\Illuminate\Routing\Router $r){
                 $r->group(['prefix' => '{warehouse_id}', 'where' => ['warehouse_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
-                    $r->get('orders', 'WarehouseController@orders');
+                    $r->get('orders-with-claims', 'WarehouseController@ordersWithClaims');
                     $r->group(['prefix' => 'order'], function (\Illuminate\Routing\Router $r){
                         $r->get('available', 'WarehouseController@availableOrders');
                     });
