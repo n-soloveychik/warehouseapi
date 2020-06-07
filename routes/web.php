@@ -32,13 +32,19 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
         $r->group(['namespace' => 'Warehouse'], function(\Illuminate\Routing\Router $r){
             $r->get('warehouses', 'WarehouseController@getWarehouses');
             $r->group(['prefix' => 'warehouse'], function (\Illuminate\Routing\Router $r){
-                $r->get('{warehouse_id}/order/available', 'WarehouseController@availableOrders')->where('warehouse_id', '[0-9]+');
+                $r->group(['prefix' => '{warehouse_id}', 'where' => ['warehouse_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
+                    $r->get('orders', 'WarehouseController@orders');
+                    $r->group(['prefix' => 'order'], function (\Illuminate\Routing\Router $r){
+                        $r->get('available', 'WarehouseController@availableOrders');
+                    });
+                });
             });
             $r->delete('claim/{claim_id}', 'ItemController@closeClaim')->where('claim_id', '[0-9]+');
             $r->group(['prefix' => 'order'], function (\Illuminate\Routing\Router $r){
                 // Create order
                 $r->post('/','OrderController@create');
                 $r->group(['prefix' => '{order_id}', 'where' => ['order_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
+                    $r->get('claims', 'OrderController@claims');
                     $r->delete('/', 'OrderController@delete');
                     $r->get('/invoices', 'OrderController@getInvoices');
                     $r->group(['prefix'=>'invoice'],function (\Illuminate\Routing\Router $r){

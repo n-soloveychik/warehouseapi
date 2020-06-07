@@ -4,7 +4,7 @@ namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
 use App\Internal\OrderMaster\ItemMaster;
-use App\Internal\ResponseFormatters\ClaimsResponse;
+use App\Internal\ResponseFormatters\Formatter\ItemClaimFormatter;
 use App\Internal\ResponseFormatters\Formatter\ItemFormatter;
 use App\Models\Item;
 use App\Models\ItemCategory;
@@ -105,7 +105,7 @@ class ItemController extends Controller
      */
     public function claims($item_id){
         $item = Item::with('claims.images')->findOrFail($item_id);
-        return ClaimsResponse::format($item->claims);
+        return ItemClaimFormatter::formatMany($item->claims);
     }
 
 }

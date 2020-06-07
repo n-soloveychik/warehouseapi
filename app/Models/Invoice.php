@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use App\Internal\ResponseFormatters\InvoiceWithItemsResponse;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 
 /**
  * Class Invoice

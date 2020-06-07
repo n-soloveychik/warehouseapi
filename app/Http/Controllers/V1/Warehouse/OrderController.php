@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\OrderRequest;
 use App\Internal\OrderMaster\OrderMaster;
-use App\Internal\ResponseFormatters\InvoiceWithItemsResponse;
+use App\Internal\ResponseFormatters\Formatter\InvoiceFormatter;
+use App\Internal\ResponseFormatters\Formatter\ItemClaimFormatter;
 use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class OrderController extends Controller
 {
@@ -19,7 +18,8 @@ class OrderController extends Controller
     /**
      * @param Request $request
      */
-    public function create(Request $request){
+    public function create(Request $request)
+    {
         $request->validate([
             'order_num' => 'required|string|unique:App\Models\Order|min:3|max:50',
             'invoices.*.count' => 'required|numeric',
@@ -37,7 +37,8 @@ class OrderController extends Controller
      * @param $order_id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function delete($order_id){
+    public function delete($order_id)
+    {
         OrderMaster::delete(Order::findOrFail($order_id));
         return response(null, Response::HTTP_OK);
     }
@@ -49,8 +50,8 @@ class OrderController extends Controller
      */
     public function getInvoices(Request $request, $order_id)
     {
-        return InvoiceWithItemsResponse::format(
-            Invoice::with('status', 'items.status', 'items.category','items.claims.images')
+        return InvoiceFormatter::formatMany(
+            Invoice::with('status', 'items.status', 'items.category', 'items.claims.images')
                 ->where('order_id', $order_id)
                 ->get()
         );
@@ -64,7 +65,7 @@ class OrderController extends Controller
      */
     public function getItemsByInvoiceID(Request $request, $order_id, $invoice_id)
     {
-        return InvoiceWithItemsResponse::format(
+        return InvoiceFormatter::formatMany(
             Invoice::with('status', 'items.status', 'items.category', 'items.claims.images')
                 ->where('order_id', $order_id)
                 ->where('invoice_id', $invoice_id)
@@ -73,4 +74,19 @@ class OrderController extends Controller
 
     }
 
+    public function claims($order_id)
+    {
+        $result = collect();
+        // Вытащить все притензии по заказу...
+        $order = Order::with('invoices.items.claims.images')->findOrFail($order_id);
+        $order->invoices->each(function ($invoice) use ($result) {
+            $invoice->items->each(function ($item) use ($result, $invoice) {
+                $item->claims->each(function ($claim) use ($result, $invoice, $item) {
+                    $result->push(array_merge(['invoice_code' => $invoice->invoice_code], ItemClaimFormatter::format($claim)));
+                });
+            });
+        });
+
+        return response($result->groupBy('invoice_code'));
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
+use App\Internal\ResponseFormatters\Formatter\OrderFormatter;
 use App\Models\Order;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
@@ -16,20 +17,17 @@ class WarehouseController extends Controller
 
     public function availableOrders(Request $request, $warehouse_id)
     {
-        return Order::with('status', 'invoices.status')
+        return OrderFormatter::formatMany(Order::with('status', 'invoices.status')
             ->where('status_id', '<', 5)
             ->where('warehouse_id', $warehouse_id)
+            ->get());
+
+    }
+
+    public function orders($warehouse_id){
+        return OrderFormatter::formatMany(Order::with('status', 'invoices.status')
+            ->where('warehouse_id', $warehouse_id)
             ->get()
-            ->map(function ($o) {
-                return array_merge(
-                    $o->only('order_id', 'warehouse_id', 'order_num', 'status_id'),
-                    [
-                        'status' => $o->status->status,
-                        'invoices' => $o->invoices->map(function ($invoice) {
-                            return array_merge($invoice->only('invoice_id', 'invoice_code', 'status_id', 'count'), ['status' => $invoice->status->status]);
-                        })->sortBy('invoice_code')->values()
-                    ]
-                );
-            })->sortBy('order_num')->values();
+        );
     }
 }

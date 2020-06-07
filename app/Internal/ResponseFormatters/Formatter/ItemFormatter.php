@@ -4,9 +4,8 @@
 namespace App\Internal\ResponseFormatters\Formatter;
 
 
-use App\Internal\ResponseFormatters\ClaimsResponse;
 use App\Models\Item;
-use Illuminate\Support\Collection;
+use \Illuminate\Database\Eloquent\Collection;
 
 class ItemFormatter
 {
@@ -16,13 +15,13 @@ class ItemFormatter
             [
                 'status' => $item->status->status,
                 'category' => $item->category->category_name,
-                'claims' => ClaimsResponse::format($item->claims)
+                'claims' => ItemClaimFormatter::formatMany($item->claims)
             ]
         );
     }
 
 
-    public static function formatItems(Collection $items){
+    public static function formatMany(Collection $items){
         return $items->map(function ($item){
             return self::format($item);
         })->sortBy('lot')->values();
