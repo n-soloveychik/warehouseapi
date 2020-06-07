@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Warehouse\Template;
 
 use App\Http\Controllers\Controller;
 use App\Internal\ResponseFormatters\Template\InvoiceItemsResponse;
+use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\ItemTemplate;
 use Illuminate\Http\Request;
@@ -32,6 +33,12 @@ class InvoiceTemplateController extends Controller
         return InvoiceItemsResponse::format($invoiceTemplate->items);
     }
 
+    /**
+     * @param Request $request
+     * @param $invoice_id
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function attach(Request $request, $invoice_id, $item_id){
         $request->validate([
             'count' => 'required|numeric',
@@ -49,6 +56,11 @@ class InvoiceTemplateController extends Controller
         return response(null, Response::HTTP_CREATED);
     }
 
+    /**
+     * @param $invoice_id
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function detach($invoice_id, $item_id){
         $invoice = InvoiceTemplate::findOrFail($invoice_id);
         if ($invoice->items->filter(function ($item) use ($item_id) {return $item->item_id == $item_id;})->count() < 1) {
@@ -60,4 +72,24 @@ class InvoiceTemplateController extends Controller
 
         return response(null, Response::HTTP_OK);
     }
+
+    public function updateCount(Request $request, $invoice_id, $item_id){
+        $request->validate([
+            'count' => 'required|numeric',
+        ]);
+        $invoice = InvoiceTemplate::findOrFail($invoice_id);
+        $invoice->items()->updateExistingPivot($item_id, ['count' => $request->get('count')]);
+
+        return response(null,Response::HTTP_OK);
+    }
+
+    public function updateLot(Request $request, $invoice_id, $item_id){
+        $request->validate([
+            'lot' => 'required|numeric'
+        ]);
+        $invoice = InvoiceTemplate::findOrFail($invoice_id);
+        $invoice->items()->updateExistingPivot($item_id, ['lot' => $request->get('lot')]);
+    }
+
+
 }

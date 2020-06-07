@@ -13,6 +13,7 @@ class ItemStatusSeeder extends Seeder
     {
         $statuses = [
             'Ожидает доставку',
+            'Частично в наличии',
             'В наличии',
             'Притензии',
             'Отгружен',

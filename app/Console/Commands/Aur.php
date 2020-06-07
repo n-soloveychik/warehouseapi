@@ -28,11 +28,28 @@ class Aur extends Command
      */
     public function handle()
     {
-        $items = Item::where('status_id', 2)->get();
-        $items->each(function ($item){
-            //dd($item);
-            $item->count_in_stock = $item->count;
-            $item->save();
+        Item::with('claims')->get()->each(function ($item){
+            if($item->claims->isNotEmpty()){
+                $item->status_id = 4;
+                $item->save();
+                return true;
+            }
+            if ($item->status_id == 2){
+                $item->status_id = 3;
+                $item->save();
+            }
+            if ($item->status_id == 1 && $item->count_in_stock > 0){
+                $item->status_id = 2;
+                $item->save();
+            }
+
         });
+
+//        $items = Item::where('status_id', 2)->get();
+//        $items->each(function ($item){
+//            //dd($item);
+//            $item->count_in_stock = $item->count;
+//            $item->save();
+//        });
     }
 }

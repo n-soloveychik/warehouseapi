@@ -66,12 +66,10 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 $r->get('categories', 'ItemController@getCategories');
 
                 $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+'],], function (\Illuminate\Routing\Router $r){
+                    $r->get('claims', 'ItemController@claims');
                     $r->delete('/', 'ItemController@delete');
                     $r->post('claim', 'ItemController@createClaim');
-
-                    $r->put('status-in-stock', 'ItemController@statusInStock');
-                    $r->put('status-await-delivery', 'ItemController@statusAwaitDelivery');
-                    $r->get('claims', 'ItemController@claims');
+                    $r->put('count-in-stock', 'ItemController@countInStock');
                 });
             });
 
@@ -103,6 +101,8 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
 
                         $r->group(['prefix' => 'item'], function (\Illuminate\Routing\Router $r){
                             $r->group(['prefix'=>'{item_id}','where' => ['item_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
+                                $r->put('count', 'InvoiceTemplateController@updateCount');
+                                $r->put('lot', 'InvoiceTemplateController@updateLot');
                                 $r->post('/', 'InvoiceTemplateController@attach');
                                 $r->delete('/', 'InvoiceTemplateController@detach');
                             });

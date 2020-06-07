@@ -7,7 +7,10 @@ namespace App\Internal\OrderMaster;
 use App\Internal\OrderMaster\Exceptions\OrderMasterException;
 use App\Models\Invoice;
 use App\Models\Item;
+use App\Models\ItemClaim;
+use App\Models\ItemClaimImage;
 use App\Models\ItemTemplate;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
 
 class ItemMaster
@@ -42,34 +45,53 @@ class ItemMaster
         return $item->delete();
     }
 
-    public static function updateStatus(Item $item, $status_id, $count=1){
+    public static function updateStatus(Item $item, $count=null) : int {
         $m = new ItemMaster($item);
-        if ($status_id != 3)
-            $m->failIfItemHaveClaims();
-
-        switch ($status_id){
-            case 1:
-                $m->setStatusAwaitDelivery();
-                break;
-            case 2:
-                $m->setStatusInStock();
-                break;
-            case 3:
-                $m->setStatusClaim();
-                break;
-            default:
-                throw new \Exception("Unknown status_id");
+        if ($count === null){
+            $count = $item->count_in_stock;
         }
+
+        if ($count != $item->count_in_stock){
+            $m->updateCount($count);
+        }
+
+        if (!self::hasClaims($item)) {
+            if ($item->count == $item->count_in_stock) {
+                $m->writeStatus(3);
+            } else if($item->count_in_stock > 0){
+                $m->writeStatus(2);
+            }else{
+                $m->writeStatus(1);
+            }
+        }
+
+        return $item->status_id;
     }
 
-    public function setStatusAwaitDelivery(){
-        $this->item->status_id = 1;
-        $this->item->save();
-        $this->invoiceMaster->updateInvoiceStatus();
+    public static function newClaim(Item $item, Iterable $images, string $description){
+        $imgModels = [];
+        foreach ($images as $image){
+
+            $imgModels[] = $imgModel = new ItemClaimImage([
+                'claim_image_path' => Arr::get(parse_url($image), 'path')
+            ]);
+        }
+
+        $claim = ItemClaim::create([
+            'item_id' => $item->item_id,
+            'claim_description' => $description,
+        ]);
+        $claim->images()->saveMany($imgModels);
+
+        $m = new ItemMaster($item);
+        if($item->count_in_stock == 0){
+            $m->updateCount(1);
+        }
+        $m->setStatusClaim();
     }
 
-    public function setStatusInStock(){
-        $this->item->status_id = 2;
+    public function writeStatus(int $statusId){
+        $this->item->status_id = $statusId;
         $this->item->save();
         $this->invoiceMaster->updateInvoiceStatus();
     }
@@ -77,10 +99,20 @@ class ItemMaster
     public function setStatusClaim(){
         $this->item->load('invoice.order');
         // Ставим заказу, счету, item статус claim
-        $this->item->status_id = 3;
-        $this->item->save();
+        $this->writeStatus(4);
+    }
 
-        $this->invoiceMaster->updateInvoiceStatus();
+    public function updateCount(int $count){
+        if ($count > $this->item->count){
+            $count = $this->item->count;
+        }
+
+        if (self::hasClaims($this->item) && $count == 0){
+            $count = 1;
+        }
+
+        $this->item->count_in_stock = $count;
+        $this->item->save();
     }
 
     public static function hasClaims(Item $item) : bool {

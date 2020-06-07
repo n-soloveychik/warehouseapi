@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Warehouse;
 use App\Http\Controllers\Controller;
 use App\Internal\OrderMaster\Exceptions\OrderMasterException;
 use App\Internal\OrderMaster\ItemMaster;
+use App\Internal\ResponseFormatters\Formatter\ItemFormatter;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -30,16 +31,8 @@ class ItemsController extends Controller
         $result = [];
         foreach ($request->get('item_ids') as $itemID){
             $item = Item::find($itemID);
-            $result[$itemID] = [
-                'item_id' => $itemID,
-                'status_id' => $item->status_id,
-            ];
-            try {
-                ItemMaster::updateStatus($item, 2);
-                $result[$itemID]['status_id'] = 2;
-            }catch (OrderMasterException $e){
-                $result[$itemID]['error'] = $e->getMessage();
-            }
+            ItemMaster::updateStatus($item, $item->count);
+            $result[] = ItemFormatter::format($item);
         }
 
         return response(collect($result)->values(), Response::HTTP_OK);

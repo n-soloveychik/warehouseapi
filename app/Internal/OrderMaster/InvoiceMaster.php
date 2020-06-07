@@ -41,13 +41,13 @@ class InvoiceMaster
     }
 
     protected function getStatus() : int {
-        if ($this->invoice->items->filter(function ($item){return $item->status_id == 3;})->count() > 0)
+        if ($this->invoice->items->filter(function ($item){return $item->status_id == 4;})->count() > 0)
             return 3;
 
-        if ($this->invoice->items->filter(function ($item){return $item->status_id != 2;})->count() == 0)
+        if ($this->invoice->items->filter(function ($item){return $item->status_id != 3;})->count() == 0)
             return 4;
 
-        if ($this->invoice->items->filter(function ($item){return $item->status_id != 1 && $item->status_id != 3;})->count() >0)
+        if ($this->invoice->items->filter(function ($item){return $item->status_id != 1 && $item->status_id != 4;})->count() >0)
             return 2;
 
         return 1;
