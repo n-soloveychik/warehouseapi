@@ -11,6 +11,7 @@ use App\Models\ItemCategory;
 use App\Models\ItemClaim;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class ItemController extends Controller
 {
@@ -62,6 +63,20 @@ class ItemController extends Controller
         ]);
         $item = Item::findOrFail($item_id);
         ItemMaster::updateStatus($item, $request->get('count_in_stock'));
+        return response(ItemFormatter::format($item), Response::HTTP_OK);
+    }
+
+    public function countShipment(Request $request, $item_id){
+        $request->validate([
+            'count_shipment' => 'required|numeric',
+        ]);
+
+        $item = Item::with('claims', 'category', 'status')->findOrFail($item_id);
+        try {
+            ItemMaster::shipment($item, (int)$request->get('count_shipment'));
+        }catch (\Exception $e){
+            throw new ConflictHttpException("count_in_stock < count_shipment");
+        }
         return response(ItemFormatter::format($item), Response::HTTP_OK);
     }
 

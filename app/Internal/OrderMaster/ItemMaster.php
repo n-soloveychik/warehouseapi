@@ -12,6 +12,7 @@ use App\Models\ItemClaimImage;
 use App\Models\ItemTemplate;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class ItemMaster
 {
@@ -68,6 +69,22 @@ class ItemMaster
         return $item->status_id;
     }
 
+    public static function shipment($item, int $count){
+        if ($item->count_in_stock < $count){
+            throw new \Exception("count_in_stock < count_shipment");
+        }
+
+        $item->count_shipment = $count;
+
+        if ($item->count_shipment == $item->count){
+            $item->status_id = 5;
+        }else{
+            self::updateStatus($item, $item->count_in_stock);
+        }
+
+        $item->save();
+    }
+
     public static function newClaim(Item $item, Iterable $images, string $description){
         $imgModels = [];
         foreach ($images as $image){
@@ -109,6 +126,10 @@ class ItemMaster
 
         if (self::hasClaims($this->item) && $count == 0){
             $count = 1;
+        }
+
+        if ($this->item->count_shipment < $count){
+            $count = $this->item->count_in_stock;
         }
 
         $this->item->count_in_stock = $count;

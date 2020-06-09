@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Warehouse\Template;
 
 use App\Http\Controllers\Controller;
 use App\Internal\ResponseFormatters\Template\InvoiceItemsResponse;
+use App\Internal\TemplateMaster\InvoiceTemplateMaster;
 use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\ItemTemplate;
@@ -30,7 +31,7 @@ class InvoiceTemplateController extends Controller
 
     public function items($invoice_id){
         $invoiceTemplate = InvoiceTemplate::with('items.category')->findOrFail($invoice_id);
-        return InvoiceItemsResponse::format($invoiceTemplate->items);
+        return InvoiceItemsResponse::formatMany($invoiceTemplate->items);
     }
 
     /**
@@ -77,18 +78,15 @@ class InvoiceTemplateController extends Controller
         $request->validate([
             'count' => 'required|numeric',
         ]);
-        $invoice = InvoiceTemplate::findOrFail($invoice_id);
-        $invoice->items()->updateExistingPivot($item_id, ['count' => $request->get('count')]);
-
-        return response(null,Response::HTTP_OK);
+        return response(InvoiceTemplateMaster::updatePivots(InvoiceTemplate::findOrFail($invoice_id), $item_id, ['count' => $request->get('count')]), Response::HTTP_OK);
     }
 
     public function updateLot(Request $request, $invoice_id, $item_id){
         $request->validate([
-            'lot' => 'required|numeric'
+            'lot' => 'required|string|min:1|max:50'
         ]);
-        $invoice = InvoiceTemplate::findOrFail($invoice_id);
-        $invoice->items()->updateExistingPivot($item_id, ['lot' => $request->get('lot')]);
+
+        return response(InvoiceTemplateMaster::updatePivots(InvoiceTemplate::findOrFail($invoice_id), $item_id, ['lot' => $request->get('lot')]), Response::HTTP_OK);
     }
 
 
