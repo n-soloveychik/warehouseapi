@@ -64,6 +64,8 @@ class ItemMaster
             }else{
                 $m->writeStatus(1);
             }
+        }else{
+            $m->writeStatus(4);
         }
 
         return $item->status_id;
@@ -81,8 +83,8 @@ class ItemMaster
         }else{
             self::updateStatus($item, $item->count_in_stock);
         }
-
         $item->save();
+
     }
 
     public static function newClaim(Item $item, Iterable $images, string $description){
@@ -128,7 +130,7 @@ class ItemMaster
             $count = 1;
         }
 
-        if ($this->item->count_shipment < $count){
+        if ($this->item->count_shipment > $count){
             $count = $this->item->count_in_stock;
         }
 
