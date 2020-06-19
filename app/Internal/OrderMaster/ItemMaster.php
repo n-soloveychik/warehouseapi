@@ -75,15 +75,15 @@ class ItemMaster
         if ($item->count_in_stock < $count){
             throw new \Exception("count_in_stock < count_shipment");
         }
+        $m = new self($item);
 
         $item->count_shipment = $count;
-
+        $item->save();
         if ($item->count_shipment == $item->count){
-            $item->status_id = 5;
+            $m->writeStatus(5);
         }else{
             self::updateStatus($item, $item->count_in_stock);
         }
-        $item->save();
 
     }
 

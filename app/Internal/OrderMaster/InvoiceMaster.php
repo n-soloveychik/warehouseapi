@@ -41,6 +41,9 @@ class InvoiceMaster
     }
 
     protected function getStatus() : int {
+        if ($this->invoice->items->filter(function ($item){return $item->status_id != 5;})->count() == 0)
+            return 5;
+
         if ($this->invoice->items->filter(function ($item){return $item->status_id == 4;})->count() > 0)
             return 3;
 

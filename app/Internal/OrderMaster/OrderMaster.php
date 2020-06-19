@@ -50,6 +50,9 @@ class OrderMaster
     }
 
     public function getStatus(){
+        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != 5;})->count() == 0)
+            return 5;
+
         if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id == 3;})->count() > 0)
             return 3;
 

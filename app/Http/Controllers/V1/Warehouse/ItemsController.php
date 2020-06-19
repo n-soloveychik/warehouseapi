@@ -22,16 +22,19 @@ class ItemsController extends Controller
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      * @throws \Exception
      */
-    public function statusInStock(Request $request){
+    public function statusInStock(Request $request)
+    {
         $request->validate([
             'item_ids' => 'required',
             'item_ids.*' => 'required|numeric|exists:App\Models\Item,item_id',
         ]);
 
         $result = [];
-        foreach ($request->get('item_ids') as $itemID){
+        foreach ($request->get('item_ids') as $itemID) {
             $item = Item::find($itemID);
-            ItemMaster::updateStatus($item, $item->count);
+            if ($item->status_id != 5) {
+                ItemMaster::updateStatus($item, $item->count);
+            }
             $result[] = ItemFormatter::format($item);
         }
 
