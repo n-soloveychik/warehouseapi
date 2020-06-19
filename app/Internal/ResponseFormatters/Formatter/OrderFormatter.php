@@ -6,6 +6,7 @@ namespace App\Internal\ResponseFormatters\Formatter;
 
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class OrderFormatter
@@ -17,7 +18,7 @@ class OrderFormatter
                 'status' => $order->status->status,
                 'invoices' => $order->invoices->map(function ($invoice) {
                     return array_merge($invoice->only('invoice_id', 'invoice_code', 'status_id', 'count'), ['status' => $invoice->status->status]);
-                })->sortBy('invoice_code')->values()
+                })->sortBy('invoice_code')->values()->all()
             ]
         );
     }
@@ -26,7 +27,9 @@ class OrderFormatter
 
     public static function formatMany(Collection $orders){
         return $orders->map(function ($o){
-            return self::format($o);
+            $formatted = self::format($o);
+            $hasShipment = count(array_filter($formatted['invoices'], function ($inv){return $inv['status_id'] == 5;})) > 0;
+            return array_merge($formatted, ['has_shipment' => (int)$hasShipment]);
         })->sortBy('order_num')->values();
     }
 
