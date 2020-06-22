@@ -17,10 +17,15 @@ class WarehouseController extends Controller
 
     public function availableOrders(Request $request, $warehouse_id)
     {
-        return OrderFormatter::formatMany(Order::with('status', 'invoices.status')
+        $request->validate([
+            'invoice_num' => 'min:1|max:100|string'
+        ]);
+
+        $q = Order::with('status', 'invoices.status')
 //            ->where('status_id', '<', 5)
-            ->where('warehouse_id', $warehouse_id)
-            ->get());
+            ->where('warehouse_id', $warehouse_id);
+
+        return OrderFormatter::formatMany($q->get());
 
     }
 
