@@ -3,6 +3,8 @@
 
 namespace App\Internal\OrderMaster;
 
+use App\Internal\Constants\InvoiceStatus;
+use App\Internal\Constants\OrderStatus;
 use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\Order;
@@ -19,7 +21,7 @@ class OrderMaster
     public static function make(int $warehouseId, string $orderNum): Order{
         return Order::create([
             'warehouse_id' => $warehouseId,
-            'status_id' => 1,
+            'status_id' => OrderStatus::AWAIT_DELIVERY,
             'order_num' => $orderNum,
         ]);
     }
@@ -50,19 +52,19 @@ class OrderMaster
     }
 
     public function getStatus(){
-        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != 5;})->count() == 0)
-            return 5;
+        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != InvoiceStatus::COMPLAINT_WORK;})->count() == 0)
+            return OrderStatus::COMPLAINT_WORK;
 
-        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id == 3;})->count() > 0)
-            return 3;
+        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id == InvoiceStatus::CLAIMS;})->count() > 0)
+            return OrderStatus::CLAIMS;
 
-        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != 4;})->count() == 0)
-            return 4;
+        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != InvoiceStatus::IN_STOCK;})->count() == 0)
+            return OrderStatus::IN_STOCK;
 
-        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != 1 && $invoice->status_id != 3;})->count() >0)
-            return 2;
+        if ($this->order->invoices->filter(function ($invoice){return $invoice->status_id != InvoiceStatus::AWAIT_DELIVERY && $invoice->status_id != InvoiceStatus::CLAIMS;})->count() >0)
+            return OrderStatus::PARTIALLY_IN_STOCK;
 
-        return 1;
+        return OrderStatus::AWAIT_DELIVERY;
     }
 
 

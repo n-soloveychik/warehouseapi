@@ -74,6 +74,10 @@ class OrderController extends Controller
 
     }
 
+    /**
+     * @param $order_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function claims($order_id)
     {
         $result = collect();
@@ -89,4 +93,5 @@ class OrderController extends Controller
 
         return response($result->groupBy('invoice_code'));
     }
+
 }

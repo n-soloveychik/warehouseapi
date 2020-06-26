@@ -4,6 +4,7 @@
 namespace App\Internal\OrderMaster;
 
 
+use App\Internal\Constants\ItemStatus;
 use App\Internal\OrderMaster\Exceptions\OrderMasterException;
 use App\Models\Invoice;
 use App\Models\Item;
@@ -29,7 +30,7 @@ class ItemMaster
 
     public static function make(Invoice $invoice, ItemTemplate $itemTemplate, int $count, string $lot) : Item{
         return Item::create([
-            'status_id' => 1,
+            'status_id' => ItemStatus::AWAIT_DELIVERY,
             'invoice_id' => $invoice->invoice_id,
             'category_id' => $itemTemplate->category_id,
             'count' => $count,
@@ -58,14 +59,14 @@ class ItemMaster
 
         if (!self::hasClaims($item)) {
             if ($item->count == $item->count_in_stock) {
-                $m->writeStatus(3);
+                $m->writeStatus(ItemStatus::IN_STOCK);
             } else if($item->count_in_stock > 0){
-                $m->writeStatus(2);
+                $m->writeStatus(ItemStatus::PARTIALLY_IN_STOCK);
             }else{
-                $m->writeStatus(1);
+                $m->writeStatus(ItemStatus::AWAIT_DELIVERY);
             }
         }else{
-            $m->writeStatus(4);
+            $m->writeStatus(ItemStatus::CLAIMS);
         }
 
         return $item->status_id;
@@ -80,7 +81,7 @@ class ItemMaster
         $item->count_shipment = $count;
         $item->save();
         if ($item->count_shipment == $item->count){
-            $m->writeStatus(5);
+            $m->writeStatus(ItemStatus::SHIPPED);
         }else{
             self::updateStatus($item, $item->count_in_stock);
         }
@@ -118,7 +119,7 @@ class ItemMaster
     public function setStatusClaim(){
         $this->item->load('invoice.order');
         // Ставим заказу, счету, item статус claim
-        $this->writeStatus(4);
+        $this->writeStatus(ItemStatus::CLAIMS);
     }
 
     public function updateCount(int $count){

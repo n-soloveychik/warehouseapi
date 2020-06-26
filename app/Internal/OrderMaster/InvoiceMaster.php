@@ -4,6 +4,8 @@
 namespace App\Internal\OrderMaster;
 
 
+use App\Internal\Constants\InvoiceStatus;
+use App\Internal\Constants\ItemStatus;
 use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\ItemTemplate;
@@ -19,7 +21,7 @@ class InvoiceMaster
     public static function make(int $orderId, string $invoiceCode, int $count = 1):Invoice{
         return Invoice::create([
             'order_id' => $orderId,
-            'status_id' => 1,
+            'status_id' => InvoiceStatus::AWAIT_DELIVERY,
             'invoice_code' => $invoiceCode,
             'count' => $count,
         ]);
@@ -41,19 +43,19 @@ class InvoiceMaster
     }
 
     protected function getStatus() : int {
-        if ($this->invoice->items->filter(function ($item){return $item->status_id != 5;})->count() == 0)
-            return 5;
+        if ($this->invoice->items->filter(function ($item){return $item->status_id != ItemStatus::SHIPPED;})->count() == 0)
+            return InvoiceStatus::COMPLAINT_WORK;
 
-        if ($this->invoice->items->filter(function ($item){return $item->status_id == 4;})->count() > 0)
-            return 3;
+        if ($this->invoice->items->filter(function ($item){return $item->status_id == ItemStatus::CLAIMS;})->count() > 0)
+            return InvoiceStatus::CLAIMS;
 
-        if ($this->invoice->items->filter(function ($item){return $item->status_id != 3;})->count() == 0)
-            return 4;
+        if ($this->invoice->items->filter(function ($item){return $item->status_id != ItemStatus::IN_STOCK;})->count() == 0)
+            return InvoiceStatus::IN_STOCK;
 
-        if ($this->invoice->items->filter(function ($item){return $item->status_id != 1 && $item->status_id != 4;})->count() >0)
-            return 2;
+        if ($this->invoice->items->filter(function ($item){return $item->status_id != 1 && $item->status_id != ItemStatus::CLAIMS;})->count() >0)
+            return InvoiceStatus::PARTIALLY_IN_STOCK;
 
-        return 1;
+        return InvoiceStatus::AWAIT_DELIVERY;
     }
 
 }

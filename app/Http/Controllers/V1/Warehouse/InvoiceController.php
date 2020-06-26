@@ -15,4 +15,8 @@ class InvoiceController extends Controller
         InvoiceMaster::delete(Invoice::findOrFail($invoice_id));
         return response(null, Response::HTTP_OK);
     }
+
+    public function shipmentCategory($invoice_id, $category_id){
+        Invoice::with('items');
+    }
 }
