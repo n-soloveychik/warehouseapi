@@ -5,7 +5,6 @@ namespace App\Internal\OrderMaster;
 
 use App\Internal\Constants\InvoiceStatus;
 use App\Internal\Constants\OrderStatus;
-use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\Order;
 
