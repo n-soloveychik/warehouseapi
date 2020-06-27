@@ -10,6 +10,10 @@ use Illuminate\Support\Arr;
 
 class ItemFormatter
 {
+    /**
+     * @param Item $item
+     * @return array
+     */
     public static function format(Item $item)
     {
         return array_merge(
@@ -23,6 +27,10 @@ class ItemFormatter
     }
 
 
+    /**
+     * @param Collection $items
+     * @return Collection|\Illuminate\Support\Collection
+     */
     public static function formatMany(Collection $items)
     {
         return $items->map(function ($item) {
@@ -30,6 +38,10 @@ class ItemFormatter
         })->sortBy('lot')->values();
     }
 
+    /**
+     * @param Collection $items
+     * @return array
+     */
     public static function formatAvailableToTransfer(Collection $items)
     {
         $orders = [];

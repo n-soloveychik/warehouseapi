@@ -12,6 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvoiceController extends Controller
 {
+    /**
+     * @param $invoice_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function delete($invoice_id){
         InvoiceMaster::delete(Invoice::findOrFail($invoice_id));
         return response(null, Response::HTTP_OK);

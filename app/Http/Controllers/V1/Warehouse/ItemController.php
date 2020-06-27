@@ -132,6 +132,10 @@ class ItemController extends Controller
         return ItemClaimFormatter::formatMany($item->claims);
     }
 
+    /**
+     * @param $item_id
+     * @return array
+     */
     public function transferAvailable($item_id){
         $item = Item::find($item_id);
         if (empty($item)){
@@ -145,8 +149,6 @@ class ItemController extends Controller
         $needItems = $needItems->filter(function ($item){
             return $item->count_in_stock > $item->count_shipment;
         });
-
-
 
         return ItemFormatter::formatAvailableToTransfer($needItems);
     }
