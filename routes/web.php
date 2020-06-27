@@ -74,8 +74,9 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 $r->post('category', 'ItemController@createCategory');
                 $r->get('categories', 'ItemController@getCategories');
 
-                $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+'],], function (\Illuminate\Routing\Router $r){
+                $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
                     $r->get('claims', 'ItemController@claims');
+                    $r->get('transfer-available', 'ItemController@transferAvailable');
                     $r->delete('/', 'ItemController@delete');
                     $r->post('claim', 'ItemController@createClaim');
                     $r->put('count-in-stock', 'ItemController@countInStock');

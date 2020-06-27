@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Warehouse;
 
 use App\Http\Controllers\Controller;
 use App\Internal\OrderMaster\InvoiceMaster;
+use App\Internal\ResponseFormatters\Formatter\ItemFormatter;
 use App\Models\Invoice;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -17,6 +18,15 @@ class InvoiceController extends Controller
     }
 
     public function shipmentCategory($invoice_id, $category_id){
-        Invoice::with('items');
+        $inv = Invoice::with(['items'=>function($q) use ($category_id){
+            $q->where('category_id', $category_id);
+        }])
+            ->where('invoice_id', $invoice_id)
+            ->first();
+        return [
+            'category_id' => (int)$category_id,
+            'invoice_id' => (int)$invoice_id,
+            'items' => ItemFormatter::formatMany($inv->items),
+        ];
     }
 }

@@ -12,6 +12,7 @@ use App\Models\ItemClaim;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ItemController extends Controller
 {
@@ -66,6 +67,11 @@ class ItemController extends Controller
         return response(ItemFormatter::format($item), Response::HTTP_OK);
     }
 
+    /**
+     * @param Request $request
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function countShipment(Request $request, $item_id){
         $request->validate([
             'count_shipment' => 'required|numeric',
@@ -124,6 +130,25 @@ class ItemController extends Controller
     public function claims($item_id){
         $item = Item::with('claims.images')->findOrFail($item_id);
         return ItemClaimFormatter::formatMany($item->claims);
+    }
+
+    public function transferAvailable($item_id){
+        $item = Item::find($item_id);
+        if (empty($item)){
+            throw new NotFoundHttpException('Item not found');
+        }
+
+        $needItems = Item::with('invoice.order')
+            ->where('item_num', $item->item_num)->where('count_in_stock', '>', '0')
+            ->get();
+
+        $needItems = $needItems->filter(function ($item){
+            return $item->count_in_stock > $item->count_shipment;
+        });
+
+
+
+        return ItemFormatter::formatAvailableToTransfer($needItems);
     }
 
 }
