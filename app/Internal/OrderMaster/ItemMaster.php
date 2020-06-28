@@ -11,6 +11,7 @@ use App\Models\Item;
 use App\Models\ItemClaim;
 use App\Models\ItemClaimImage;
 use App\Models\ItemTemplate;
+use App\Models\TransferItemHistory;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -190,5 +191,37 @@ class ItemMaster
     protected function failIfItemHaveClaims(){
         if (self::hasClaims($this->item))
             throw new OrderMasterException('Item has unclosed claims', Response::HTTP_CONFLICT);
+    }
+
+    /**
+     * @param Item $itemFrom
+     * @param Item $itemTo
+     * @param int $count
+     * @return int
+     */
+    public static function supplement(Item $itemFrom, Item $itemTo, int $count) : int {
+        $available = self::calcTransferAvailable($itemFrom);
+        if ($available > $count){
+            return 0;
+        }
+
+        $itemFrom->count_in_stock -= $count;
+        $itemTo->count_in_stock += $count;
+        TransferItemHistory::create([
+            'from_item_id' => $itemFrom->item_id,
+            'to_item_id' => $itemTo->item_id,
+        ]);
+        $itemTo->save();
+        $itemFrom->save();
+
+        return $count;
+    }
+
+    /**
+     * @param Item $item
+     * @return int
+     */
+    public static function calcTransferAvailable(Item $item) : int {
+        return $item->count_in_stock - $item->count_shipment;
     }
 }

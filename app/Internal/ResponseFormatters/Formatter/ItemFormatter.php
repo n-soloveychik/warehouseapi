@@ -4,6 +4,7 @@
 namespace App\Internal\ResponseFormatters\Formatter;
 
 
+use App\Internal\OrderMaster\ItemMaster;
 use App\Models\Item;
 use \Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -61,12 +62,12 @@ class ItemFormatter
                     })->map(function ($inv, $invID) use($invoices) {
                         $countAvailable = 0;
                         $inv->each(function ($itm) use (&$countAvailable){
-                            $countAvailable += $itm->count_in_stock - $itm->count_shipment;
+                            $countAvailable += ItemMaster::calcTransferAvailable($itm);
                         });
                         return [
                             'invoice_id' => (int)$invID,
                             'invoice_code' => $invoices[$invID]->invoice_code,
-                            'count_available' => $countAvailable
+                            'count_available' => $countAvailable,
                         ];
                     })->groupBy(function ($inv){
                         return $inv['invoice_code'];

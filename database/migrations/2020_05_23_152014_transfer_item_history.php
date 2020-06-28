@@ -13,7 +13,12 @@ class TransferItemHistory extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('transfer_item_history', function (Blueprint $table) {
+            $table->id('transfer_id');
+            $table->integer('from_item_id')->index();
+            $table->integer('to_item_id')->index();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -23,6 +28,6 @@ class TransferItemHistory extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('transfer_item_history');
     }
 }

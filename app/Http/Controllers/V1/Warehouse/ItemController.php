@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Internal\OrderMaster\ItemMaster;
 use App\Internal\ResponseFormatters\Formatter\ItemClaimFormatter;
 use App\Internal\ResponseFormatters\Formatter\ItemFormatter;
+use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\ItemCategory;
 use App\Models\ItemClaim;
@@ -137,20 +138,59 @@ class ItemController extends Controller
      * @return array
      */
     public function transferAvailable($item_id){
-        $item = Item::find($item_id);
-        if (empty($item)){
-            throw new NotFoundHttpException('Item not found');
-        }
+        $item = Item::with('invoice.order.invoices')->findOrFail($item_id);
+        $currInvoices = $item->invoice->order->invoices->map(function ($inv){
+            return $inv->invoice_id;
+        })->values()->all();
 
         $needItems = Item::with('invoice.order')
-            ->where('item_num', $item->item_num)->where('count_in_stock', '>', '0')
+            ->where('item_num', $item->item_num)
+            ->where('count_in_stock', '>', '0')
+            ->whereNotIn('invoice_id', $currInvoices)
             ->get();
 
         $needItems = $needItems->filter(function ($item){
             return $item->count_in_stock > $item->count_shipment;
         });
 
-        return ItemFormatter::formatAvailableToTransfer($needItems);
+        return array_merge(ItemFormatter::formatAvailableToTransfer($needItems), ['item' => ItemFormatter::format($item)]);
     }
 
+    /**
+     * @param Request $request
+     * @param $item_id
+     * @return int[]
+     */
+    public function supplement(Request $request, $item_id){
+        $request->validate([
+            'order_id' => 'required|numeric|exists:App\Models\Order',
+            'invoice_code' => 'required|string|exists:App\Models\Invoice',
+            'count' => 'required|numeric'
+        ]);
+
+        $itm = Item::with('invoice')->findOrFail($item_id);
+        $invoices = Invoice::with(['items'=>function($q) use($itm){
+            $q->where('item_num', $itm->item_num);
+        }])->where('invoice_code',$request->get('invoice_code'))
+            ->where('order_id', $request->get('order_id'))
+            ->get();
+
+        $countTransferred = 0;
+        foreach ($invoices as $invoice){
+            foreach ($invoice->items as $item){
+                $availableToTransfer = ItemMaster::calcTransferAvailable($item);
+                $countToTransfer = $availableToTransfer;
+                if ($availableToTransfer > $request->get('count')){
+                    $countToTransfer = $request->get('count');
+                }
+                $countTransferred = ItemMaster::supplement($itm, $item, $countToTransfer);
+                if ($countTransferred >= $request->get('count'))
+                    break;
+            }
+            if ($countTransferred >= $request->get('count'))
+                break;
+        }
+
+        return ['transferred' => $countTransferred];
+    }
 }

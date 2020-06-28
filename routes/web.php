@@ -79,6 +79,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                     $r->get('transfer-available', 'ItemController@transferAvailable');
                     $r->delete('/', 'ItemController@delete');
                     $r->post('claim', 'ItemController@createClaim');
+                    $r->post('supplement', 'ItemController@supplement');
                     $r->put('count-in-stock', 'ItemController@countInStock');
                     $r->put('count-shipment', 'ItemController@countShipment');
                 });
