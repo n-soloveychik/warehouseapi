@@ -211,16 +211,14 @@ class ItemMaster
             return 0;
         }
 
-        $itemFrom->count_in_stock -= $count;
-        $itemTo->count_in_stock += $count;
-
         TransferItemHistory::create([
             'from_item_id' => $itemFrom->item_id,
             'to_item_id' => $itemTo->item_id,
             'count' => $count
         ]);
-        $itemTo->save();
-        $itemFrom->save();
+
+        self::updateStatus($itemFrom,$itemFrom->count_in_stock - $count);
+        self::updateStatus($itemTo, $itemTo->count_in_stock + $count);
 
         return $count;
     }
