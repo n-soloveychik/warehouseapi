@@ -17,6 +17,7 @@ class TransferItemHistory extends Migration
             $table->id('transfer_id');
             $table->integer('from_item_id')->index();
             $table->integer('to_item_id')->index();
+            $table->integer('count');
             $table->timestamps();
         });
     }

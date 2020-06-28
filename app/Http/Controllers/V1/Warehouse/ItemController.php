@@ -21,7 +21,8 @@ class ItemController extends Controller
      * @param $item_id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function delete($item_id){
+    public function delete($item_id)
+    {
         ItemMaster::delete(Item::findOrFail($item_id));
         return response(null, Response::HTTP_OK);
     }
@@ -30,7 +31,8 @@ class ItemController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function createCategory(Request $request){
+    public function createCategory(Request $request)
+    {
         $request->validate([
             'category_name' => 'required|min:3|max:100'
         ]);
@@ -49,7 +51,8 @@ class ItemController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function getCategories(Request $request){
+    public function getCategories(Request $request)
+    {
         return ItemCategory::select('category_id', 'category_name')->get();
     }
 
@@ -59,7 +62,8 @@ class ItemController extends Controller
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      * @throws \Exception
      */
-    public function countInStock(Request $request, $item_id){
+    public function countInStock(Request $request, $item_id)
+    {
         $request->validate([
             'count_in_stock' => 'required|numeric'
         ]);
@@ -73,7 +77,8 @@ class ItemController extends Controller
      * @param $item_id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function countShipment(Request $request, $item_id){
+    public function countShipment(Request $request, $item_id)
+    {
         $request->validate([
             'count_shipment' => 'required|numeric',
         ]);
@@ -81,7 +86,7 @@ class ItemController extends Controller
         $item = Item::with('claims', 'category', 'status')->findOrFail($item_id);
         try {
             ItemMaster::shipment($item, (int)$request->get('count_shipment'));
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             throw new ConflictHttpException("count_in_stock < count_shipment");
         }
         return response(ItemFormatter::format($item), Response::HTTP_OK);
@@ -93,7 +98,8 @@ class ItemController extends Controller
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      * @throws \Exception
      */
-    public function createClaim(Request $request, $item_id){
+    public function createClaim(Request $request, $item_id)
+    {
         $request->validate([
             'images.*' => 'required|url|min:5|max:200',
             'claim_description' => 'string|min:3|max:300',
@@ -109,14 +115,16 @@ class ItemController extends Controller
      * @param $claim_id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function closeClaim(Request $request, $claim_id){
+    public function closeClaim(Request $request, $claim_id)
+    {
         $claim = ItemClaim::with('item')->findOrFail($claim_id);
         $claim->closed = 1;
         $claim->save();
 
-        try{
+        try {
             ItemMaster::updateStatus($claim->item);
-        }catch (\Exception $e){}
+        } catch (\Exception $e) {
+        }
 
         return response([
             'invoice_code' => $claim->item->invoice->invoice_code,
@@ -128,7 +136,8 @@ class ItemController extends Controller
      * @param $item_id
      * @return \Illuminate\Support\Collection
      */
-    public function claims($item_id){
+    public function claims($item_id)
+    {
         $item = Item::with('claims.images')->findOrFail($item_id);
         return ItemClaimFormatter::formatMany($item->claims);
     }
@@ -137,9 +146,10 @@ class ItemController extends Controller
      * @param $item_id
      * @return array
      */
-    public function transferAvailable($item_id){
+    public function transferAvailable($item_id)
+    {
         $item = Item::with('invoice.order.invoices')->findOrFail($item_id);
-        $currInvoices = $item->invoice->order->invoices->map(function ($inv){
+        $currInvoices = $item->invoice->order->invoices->map(function ($inv) {
             return $inv->invoice_id;
         })->values()->all();
 
@@ -149,11 +159,18 @@ class ItemController extends Controller
             ->whereNotIn('invoice_id', $currInvoices)
             ->get();
 
-        $needItems = $needItems->filter(function ($item){
+        $needItems = $needItems->filter(function ($item) {
             return $item->count_in_stock > $item->count_shipment;
         });
 
-        return array_merge(ItemFormatter::formatAvailableToTransfer($needItems), ['item' => ItemFormatter::format($item)]);
+        return array_merge(ItemFormatter::formatAvailableToTransfer($needItems),
+            [
+                'item' => array_merge(ItemFormatter::format($item),
+                    [
+                        'invoice_code' => $item->invoice->invoice_code,
+                        'order_num' => $item->invoice->order->order_num])
+            ]
+        );
     }
 
     /**
@@ -161,36 +178,57 @@ class ItemController extends Controller
      * @param $item_id
      * @return int[]
      */
-    public function supplement(Request $request, $item_id){
+    public function supplement(Request $request, $item_id)
+    {
         $request->validate([
-            'order_id' => 'required|numeric|exists:App\Models\Order',
-            'invoice_code' => 'required|string|exists:App\Models\Invoice',
-            'count' => 'required|numeric'
+            'orders' => 'required|array',
+            'orders.*.order_id' => 'required|numeric|exists:App\Models\Order',
+            'orders.*.invoices' => 'required|array',
+            'orders.*.invoices.*.invoice_code' => 'required|string|exists:App\Models\Invoice',
+            'orders.*.invoices.*.count' => 'required|numeric'
         ]);
 
         $itm = Item::with('invoice')->findOrFail($item_id);
-        $invoices = Invoice::with(['items'=>function($q) use($itm){
-            $q->where('item_num', $itm->item_num);
-        }])->where('invoice_code',$request->get('invoice_code'))
-            ->where('order_id', $request->get('order_id'))
-            ->get();
-
         $countTransferred = 0;
-        foreach ($invoices as $invoice){
-            foreach ($invoice->items as $item){
-                $availableToTransfer = ItemMaster::calcTransferAvailable($item);
-                $countToTransfer = $availableToTransfer;
-                if ($availableToTransfer > $request->get('count')){
-                    $countToTransfer = $request->get('count');
-                }
-                $countTransferred = ItemMaster::supplement($itm, $item, $countToTransfer);
-                if ($countTransferred >= $request->get('count'))
-                    break;
-            }
-            if ($countTransferred >= $request->get('count'))
-                break;
-        }
 
+        foreach ($request->get('orders') as $order) {
+            $orderID = $order['order_id'];
+            foreach ($order['invoices'] as $reqInvoice) {
+                $invoices = Invoice::with(['items' => function ($q) use ($itm) {
+                    $q->where('item_num', $itm->item_num);
+                }])->where('invoice_code', $reqInvoice['invoice_code'])
+                    ->where('order_id', $orderID)
+                    ->get();
+
+                foreach ($invoices as $invoice) {
+                    foreach ($invoice->items as $item) {
+                        $availableToTransfer = ItemMaster::calcTransferAvailable($item);
+                        $countToTransfer = $availableToTransfer;
+
+                        if ($availableToTransfer > $reqInvoice['count']) {
+                            $countToTransfer = $reqInvoice['count'];
+                        }
+                        $countTransferred = ItemMaster::supplement($itm, $item, $countToTransfer);
+                        if ($countTransferred >= $reqInvoice['count'])
+                            break;
+                    }
+                    if ($countTransferred >= $reqInvoice['count'])
+                        break;
+                }
+
+            }
+
+        }
         return ['transferred' => $countTransferred];
+    }
+
+    /**
+     * @param $item_id
+     * @return array
+     */
+    public function transferHistory($item_id)
+    {
+        $itm = Item::findOrFail($item_id);
+        return $itm->transferHistory();
     }
 }

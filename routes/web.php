@@ -77,6 +77,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
                     $r->get('claims', 'ItemController@claims');
                     $r->get('transfer-available', 'ItemController@transferAvailable');
+                    $r->get('transfer-history', 'ItemController@transferHistory');
                     $r->delete('/', 'ItemController@delete');
                     $r->post('claim', 'ItemController@createClaim');
                     $r->post('supplement', 'ItemController@supplement');

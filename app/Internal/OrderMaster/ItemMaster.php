@@ -199,17 +199,22 @@ class ItemMaster
      * @param int $count
      * @return int
      */
-    public static function supplement(Item $itemFrom, Item $itemTo, int $count) : int {
+    public static function supplement(Item $itemTo, Item $itemFrom, int $count) : int {
         $available = self::calcTransferAvailable($itemFrom);
-        if ($available > $count){
+        if ($available < $count){
+            return 0;
+        }
+        if ($itemTo->count < $itemTo->count_in_stock + $count){
             return 0;
         }
 
         $itemFrom->count_in_stock -= $count;
         $itemTo->count_in_stock += $count;
+
         TransferItemHistory::create([
             'from_item_id' => $itemFrom->item_id,
             'to_item_id' => $itemTo->item_id,
+            'count' => $count
         ]);
         $itemTo->save();
         $itemFrom->save();
