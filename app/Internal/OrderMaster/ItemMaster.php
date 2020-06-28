@@ -14,8 +14,11 @@ use App\Models\ItemTemplate;
 use App\Models\TransferItemHistory;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
+/**
+ * Class ItemMaster
+ * @package App\Internal\OrderMaster
+ */
 class ItemMaster
 {
     protected $item;
