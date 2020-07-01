@@ -27,6 +27,7 @@ class Items extends Migration
             $table->string('image');
             $table->string('size');
             $table->string('description')->nullable();
+            $table->tinyInteger('has_transfer')->default(0);
             $table->timestamps();
         });
     }

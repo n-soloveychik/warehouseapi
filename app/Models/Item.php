@@ -31,7 +31,7 @@ class Item extends Model
         return $this->hasMany(ItemClaim::class, 'item_id','item_id');
     }
 
-    public function transferHistory(){
+    public function transferHistoryFormatted(){
         return TransferHistoryFormatter::format(TransferItemHistory::where('from_item_id', $this->item_id)->orWhere('to_item_id', $this->item_id)->orderBy('transfer_id', 'DESC')->get());
     }
 }

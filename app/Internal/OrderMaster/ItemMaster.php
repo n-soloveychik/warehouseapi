@@ -220,6 +220,15 @@ class ItemMaster
         self::updateStatus($itemFrom,$itemFrom->count_in_stock - $count);
         self::updateStatus($itemTo, $itemTo->count_in_stock + $count);
 
+        if ($itemFrom->has_transfer == 0) {
+            $itemFrom->has_transfer = 1;
+            $itemFrom->save();
+        }
+        if ($itemTo->has_transfer == 0) {
+            $itemTo->has_transfer = 1;
+            $itemTo->save();
+        }
+
         return $count;
     }
 

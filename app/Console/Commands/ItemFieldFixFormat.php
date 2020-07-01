@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Item;
+use App\Models\TransferItemHistory;
 use Illuminate\Console\Command;
 
 class ItemFieldFixFormat extends Command

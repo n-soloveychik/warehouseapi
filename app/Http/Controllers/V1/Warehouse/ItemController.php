@@ -229,6 +229,6 @@ class ItemController extends Controller
     public function transferHistory($item_id)
     {
         $itm = Item::findOrFail($item_id);
-        return $itm->transferHistory();
+        return $itm->transferHistoryFormatted();
     }
 }

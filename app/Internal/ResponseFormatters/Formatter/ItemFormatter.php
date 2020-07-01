@@ -18,7 +18,7 @@ class ItemFormatter
     public static function format(Item $item)
     {
         return array_merge(
-            $item->only('item_id', 'status_id', 'category_id', 'category_id', 'invoice_id', 'count', 'count_in_stock', 'count_shipment', 'weight', 'item_num', 'lot', 'image', 'size', 'description'),
+            $item->only('item_id', 'status_id', 'category_id', 'category_id', 'invoice_id', 'count', 'count_in_stock', 'count_shipment', 'weight', 'item_num', 'lot', 'image', 'size', 'description','has_transfer'),
             [
                 'status' => $item->status->status,
                 'category' => $item->category->category_name,
