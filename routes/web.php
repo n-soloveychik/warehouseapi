@@ -102,6 +102,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
                 $r->group(['prefix'=>'item'], function (\Illuminate\Routing\Router $r){
                     $r->group(['prefix' => '{item_id}','where' => ['item_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
                         $r->put('image', 'ItemTemplateController@updateImage');
+                        $r->put('category/{category_id}', 'ItemTemplateController@updateCategory')->where('category_id','[0-9]+');
                     });
 
                 });

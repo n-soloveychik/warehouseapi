@@ -4,11 +4,13 @@ namespace App\Http\Controllers\V1\Warehouse\Template;
 
 use App\Http\Controllers\Controller;
 use App\Internal\ResponseFormatters\Template\ItemResponse;
+use App\Models\ItemCategory;
 use App\Models\ItemTemplate;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ItemTemplateController extends Controller
 {
@@ -72,5 +74,23 @@ class ItemTemplateController extends Controller
         $item->save();
 
         return response(null, Response::HTTP_OK);
+    }
+
+    /**
+     * @param $item_id
+     * @param $category_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
+    public function updateCategory($item_id, $category_id){
+        $item = ItemTemplate::findOrFail($item_id);
+        $category = ItemCategory::find($category_id);
+        if (empty($category)){
+            throw new BadRequestHttpException('Undefined category_id');
+        }
+
+        $item->category_id = $category_id;
+        $item->save();
+
+        return response(null);
     }
 }
