@@ -228,7 +228,17 @@ class ItemController extends Controller
      */
     public function transferHistory($item_id)
     {
-        $itm = Item::findOrFail($item_id);
-        return $itm->transferHistoryFormatted();
+        $itm = Item::with('invoice.order')->findOrFail($item_id);
+        return [
+            'transfer_history' => $itm->transferHistoryFormatted(),
+            'item' => array_merge(
+                ItemFormatter::format($itm),
+                [
+                    'order_num' => $itm->invoice->order->order_num,
+                    'invoice_code' => $itm->invoice->invoice_code,
+                ]
+            ),
+
+        ];
     }
 }
