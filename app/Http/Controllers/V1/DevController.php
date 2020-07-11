@@ -38,7 +38,7 @@ class DevController extends Controller
             'category_id' => $request->get('category'),
             'item_num' => $request->get('num'),
             'weight' => $w,
-            'size' => $request->get('size'),
+            'size' => $request->get('size') ?? 0,
         ];
 
 //        return $itd;
