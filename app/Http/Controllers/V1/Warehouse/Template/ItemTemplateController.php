@@ -93,4 +93,16 @@ class ItemTemplateController extends Controller
 
         return response(null);
     }
+
+    public function updateSize(Request $request, $item_id){
+        $item = ItemTemplate::findOrFail($item_id);
+        $request->validate([
+            'size' => 'required|string|min:1|max:50'
+        ]);
+
+        $item->size = $request->get('size');
+        $item->save();
+
+        return response(null);
+    }
 }
