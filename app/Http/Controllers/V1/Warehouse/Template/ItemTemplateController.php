@@ -18,7 +18,7 @@ class ItemTemplateController extends Controller
      * @return \Illuminate\Support\Collection
      */
     public function items(){
-        return ItemResponse::format(
+        return ItemResponse::formatMany(
             QueryBuilder::for(ItemTemplate::class)
                 ->allowedFilters([
                     AllowedFilter::exact('category_id'),
@@ -103,6 +103,6 @@ class ItemTemplateController extends Controller
         $item->size = $request->get('size');
         $item->save();
 
-        return response(null);
+        return response(ItemResponse::format($item));
     }
 }
