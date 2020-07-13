@@ -21,6 +21,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
     });
 
     $r->post('create-item-template', 'DevController@createItemTemplate');
+    $r->post('js-parser-item-template', 'DevController@jsParserItemTemplate');
 
     // SecureGroup
     $r->group(['middleware' => ['auth:sanctum']], function (\Illuminate\Routing\Router $r){
