@@ -86,7 +86,7 @@ class ItemMaster
             }else{
                 $m->writeStatus(ItemStatus::AWAIT_DELIVERY);
             }
-        }else{
+        }elseif($item->status_id != ItemStatus::CLAIMS){
             $m->writeStatus(ItemStatus::CLAIMS);
         }
 
