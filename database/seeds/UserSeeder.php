@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         ]);
         //$u->createToken('main');
         $u = \App\User::create([
-            'name' => 'TMS',
+            'name' => 'Генеральный Помощьник Генерального',
             'email' => 'dev@nashdvor-sz.ru',
             'email_verified_at' => \Carbon\Carbon::now(),
             'password' => \Illuminate\Support\Facades\Hash::make('burnd'),
