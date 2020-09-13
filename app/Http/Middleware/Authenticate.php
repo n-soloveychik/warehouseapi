@@ -9,12 +9,6 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 class Authenticate extends Middleware
 {
     /**
-     * Get the path the user should be redirected to when they are not authenticated.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return string|null
-     */
-    /**
      * Handle an unauthenticated user.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -25,6 +19,6 @@ class Authenticate extends Middleware
      */
     protected function unauthenticated($request, array $guards)
     {
-        throw new UnauthorizedHttpException("Access denied.");
+        throw new UnauthorizedHttpException("Access denied.", "Access denied.");
     }
 }
