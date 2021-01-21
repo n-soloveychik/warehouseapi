@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\MountingType;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class MountingTypeCollection extends ResourceCollection
@@ -14,6 +15,8 @@ class MountingTypeCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return $this->collection->map(function (MountingType $type){
+            return $type->only(['id', 'type']);
+        })->toArray();
     }
 }
