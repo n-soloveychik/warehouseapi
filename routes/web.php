@@ -98,6 +98,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
             $r->group(['prefix' => 'template', 'namespace' => 'Template'], function (\Illuminate\Routing\Router $r){
                 $r->get('items', 'ItemTemplateController@items');
                 $r->get('invoices', 'InvoiceTemplateController@invoices');
+                $r->get('mounting-types', 'InvoiceTemplateController@mountingTypes');
                 $r->post('item', 'ItemTemplateController@create');
 
                 $r->group(['prefix'=>'item'], function (\Illuminate\Routing\Router $r){

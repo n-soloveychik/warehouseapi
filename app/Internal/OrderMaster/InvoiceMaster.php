@@ -16,6 +16,13 @@ class InvoiceMaster
         //$invoice->refresh();
         $this->invoice = $invoice;
     }
+
+    /**
+     * @param int $orderId
+     * @param string $invoiceCode
+     * @param int $count
+     * @return Invoice
+     */
     public static function make(int $orderId, string $invoiceCode, int $count = 1):Invoice{
         return Invoice::create([
             'order_id' => $orderId,
@@ -25,6 +32,11 @@ class InvoiceMaster
         ]);
     }
 
+    /**
+     * @param Invoice $invoice
+     * @return bool
+     * @throws \Exception
+     */
     public static function delete(Invoice $invoice) : bool{
         $invoice->items()->delete();
         return $invoice->delete();

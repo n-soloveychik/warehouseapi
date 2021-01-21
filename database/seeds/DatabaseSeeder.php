@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             WarehouseSeeder::class,
             OrderStatusSeeder::class,
             InvoiceStatusSeeder::class,
+            MountingTypes::class,
             //OrderSeeder::class,
         ]);
     }

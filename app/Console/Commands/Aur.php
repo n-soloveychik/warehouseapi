@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\InvoiceTemplate;
 use App\Models\Item;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class Aur extends Command
 {
@@ -28,10 +30,27 @@ class Aur extends Command
      */
     public function handle()
     {
+        $bar = $this->output->createProgressBar(Item::count());
+        Item::with('invoice')->chunk(100, function ($items) use ($bar){
+            /** @var Item $item */
+            foreach ($items as $item){
 
+                if (empty($item->invoice)){
+                    //$this->warn("emptyInvoice");
+                    $item->delete();
+                }
+                $bar->advance();
+            }
 
+        });
+//        $templates = InvoiceTemplate::where('created_at', '>', '2020-10-19 19:12:57')->get()->each(function (InvoiceTemplate $t){
+//            $t->items()->delete();
+//            $t->delete();
+//        });
+//
+//        dd($templates);
 
-//        Item::with('claims')->get()->each(function ($item){
+        //        Item::with(claims')->get()->each(function ($item){
 //            if($item->claims->isNotEmpty()){
 //                $item->status_id = 4;
 //                $item->save();
@@ -54,6 +73,7 @@ class Aur extends Command
 //            $item->count_in_stock = $item->count;
 //            $item->save();
 //        });
+        return null;
     }
 
 
