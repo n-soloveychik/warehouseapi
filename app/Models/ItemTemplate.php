@@ -18,4 +18,9 @@ class ItemTemplate extends Model
         return $this->belongsTo(ItemCategory::class, 'category_id', 'category_id');
     }
 
+    public function mountingType()
+    {
+        return $this->belongsTo(MountingType::class, 'mount_id', 'id');
+    }
+
 }

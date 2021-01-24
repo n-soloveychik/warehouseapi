@@ -115,6 +115,7 @@ Route::group(['namespace' => 'V1', 'prefix' => 'v1', 'middleware' => ['json']], 
 
                     $r->group(['prefix' => '{invoice_id}', 'where' => ['invoice_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){
                         $r->get('items', 'InvoiceTemplateController@items');
+                        $r->get('mounting-types', 'InvoiceTemplateController@invoiceTemplateMountingTypes');
 
                         $r->group(['prefix' => 'item'], function (\Illuminate\Routing\Router $r){
                             $r->group(['prefix'=>'{item_id}','where' => ['item_id' => '[0-9]+']], function (\Illuminate\Routing\Router $r){

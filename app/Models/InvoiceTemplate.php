@@ -10,7 +10,11 @@ class InvoiceTemplate extends Model
     protected $primaryKey = 'invoice_id';
     protected $guarded = [];
 
+    public function rawItems(){
+        return $this->belongsToMany(ItemTemplate::class, 'item_templates_invoice_templates', 'invoice_id', 'item_id');
+    }
+
     public function items(){
-        return $this->belongsToMany(ItemTemplate::class, 'item_templates_invoice_templates', 'invoice_id', 'item_id')->orderBy('category_id')->withPivot(['count','lot']);
+        return $this->rawItems()->orderBy('category_id')->withPivot(['count','lot']);
     }
 }

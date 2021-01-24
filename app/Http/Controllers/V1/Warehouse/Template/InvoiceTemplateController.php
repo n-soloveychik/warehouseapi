@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\V1\Warehouse\Template;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\MountingTypeCollection;
+use App\Http\Resources\V1\MountingTypeCollection;
 use App\Internal\ResponseFormatters\Template\InvoiceItemsResponse;
 use App\Internal\TemplateMaster\InvoiceTemplateMaster;
-use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\ItemTemplate;
 use App\Models\MountingType;
@@ -15,11 +14,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvoiceTemplateController extends Controller
 {
-    public function invoices()
+    /**
+     * @param Request $r
+     * @return mixed
+     */
+    public function invoices(Request $r)
     {
-        return InvoiceTemplate::select('invoice_id', 'invoice_code')->orderBy('invoice_id', 'desc')->get();
+        $r->validate([
+            'search' => 'min:2|max:50'
+        ]);
+        $q = InvoiceTemplate::select('invoice_id', 'invoice_code')->orderBy('invoice_id', 'desc');
+        if ($r->has('search')){
+            $q->where('invoice_code', 'ilike', "%{$r->get('search')}%");
+        }
+        return $q->get();
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function create(Request $request)
     {
         $request->validate([
@@ -33,15 +47,46 @@ class InvoiceTemplateController extends Controller
         return response(null, Response::HTTP_CREATED);
     }
 
+    /**
+     * @param $invoice_id
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
     public function items($invoice_id)
     {
         $invoiceTemplate = InvoiceTemplate::with('items.category')->findOrFail($invoice_id);
         return InvoiceItemsResponse::formatMany($invoiceTemplate->items);
     }
 
+    /**
+     * @param Request $r
+     * @return MountingTypeCollection
+     */
     public function mountingTypes(Request $r)
     {
         return new MountingTypeCollection(MountingType::all());
+    }
+
+    /**
+     * @param $invoice_id
+     * @return MountingTypeCollection|array
+     */
+    public function invoiceTemplateMountingTypes($invoice_id){
+        // TODO Slow method....
+        /**
+         * @var $invoice InvoiceTemplate
+         */
+        $invoice = InvoiceTemplate::findOrFail($invoice_id);
+        $items = $invoice->rawItems()->select('mount_id')->with('mountingType')->get();
+        $ids = [];
+        foreach ($items as $item){
+            if (!empty($item->mount_id)){
+                $ids[$item->mount_id] = $item->mountingType;
+            }
+        }
+        $ids = collect($ids);
+        if ($ids->isEmpty())
+            return [];
+        return new MountingTypeCollection($ids->sortBy('id')->values());
     }
 
 
@@ -91,6 +136,12 @@ class InvoiceTemplateController extends Controller
         return response(null, Response::HTTP_OK);
     }
 
+    /**
+     * @param Request $request
+     * @param $invoice_id
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function updateCount(Request $request, $invoice_id, $item_id)
     {
         $request->validate([
@@ -99,6 +150,12 @@ class InvoiceTemplateController extends Controller
         return response(InvoiceTemplateMaster::updatePivots(InvoiceTemplate::findOrFail($invoice_id), $item_id, ['count' => $request->get('count')]), Response::HTTP_OK);
     }
 
+    /**
+     * @param Request $request
+     * @param $invoice_id
+     * @param $item_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function updateLot(Request $request, $invoice_id, $item_id)
     {
         $request->validate([
