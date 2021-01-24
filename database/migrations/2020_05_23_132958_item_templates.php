@@ -15,7 +15,8 @@ class ItemTemplates extends Migration
     {
         Schema::create('item_templates', function (Blueprint $table) {
             $table->id('item_id');
-            $table->integer('category_id');
+            $table->integer('category_id')->index();
+            $table->integer('mount_id')->nullable()->index();
             $table->string('item_num');
             $table->string('image');
             $table->string('size');
