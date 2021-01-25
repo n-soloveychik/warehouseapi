@@ -9,6 +9,7 @@ use App\Internal\TemplateMaster\InvoiceTemplateMaster;
 use App\Models\InvoiceTemplate;
 use App\Models\ItemTemplate;
 use App\Models\MountingType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,11 +22,20 @@ class InvoiceTemplateController extends Controller
     public function invoices(Request $r)
     {
         $r->validate([
-            'search' => 'min:2|max:50'
+            'search' => 'min:2|max:50',
+            'mount_id' => 'numeric'
         ]);
+        /**
+         * @var $q Builder
+         */
         $q = InvoiceTemplate::select('invoice_id', 'invoice_code')->orderBy('invoice_id', 'desc');
         if ($r->has('search')){
             $q->where('invoice_code', 'ilike', "%{$r->get('search')}%");
+        }
+        if ($r->has('mount_id')){
+            $q->whereHas('items', function (Builder $query) use ($r){
+                $query->where('mount_id', $r->get('mount_id'));
+            })->get();
         }
         return $q->get();
     }

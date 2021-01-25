@@ -9,7 +9,7 @@ use App\Internal\ResponseFormatters\Formatter\ItemClaimFormatter;
 use App\Models\Invoice;
 use App\Models\InvoiceTemplate;
 use App\Models\Order;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,7 +25,7 @@ class OrderController extends Controller
             'order_num' => 'required|string|unique:App\Models\Order|min:3|max:50',
             'invoices.*.count' => 'required|numeric',
             'invoices.*.invoice_id' => 'required|numeric|exists:App\Models\InvoiceTemplate',
-            'invoices.*.mount_id' => 'required|numeric|exists:App\Models\MountingType'
+            'invoices.*.mount_id' => 'required|numeric|exists:App\Models\MountingType,id'
         ]);
 
         $order = OrderMaster::make(1, $request->get('order_num'));
@@ -34,7 +34,7 @@ class OrderController extends Controller
             /**
              * @var $invoiceModel InvoiceTemplate
              */
-            $invoiceModel = InvoiceTemplate::with(['items' => function(Builder $q) use ($mountID){
+            $invoiceModel = InvoiceTemplate::with(['items' => function(BelongsToMany $q) use ($mountID){
                 $q->whereNull('mount_id')->orWhere('mount_id', $mountID);
             }])->find($invoice['invoice_id']);
             OrderMaster::addInvoice($order, $invoiceModel, $invoice['count']);
