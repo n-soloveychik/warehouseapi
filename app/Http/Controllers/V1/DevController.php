@@ -73,7 +73,7 @@ class DevController extends Controller
             'data.*.detailSizeType' => 'required',
 //            'data.*.detailWeightOne'=>'numeric',
             'data.*.detail' => 'required',
-            'data.*.detailImg' => 'required',
+            'data.*.detailImg' => 'string|nullable',
             'data.*.typeName' => 'required',
             'data.*.count' => 'required',
             'data.*.mountName' => 'nullable',
@@ -106,7 +106,8 @@ class DevController extends Controller
         $w = $wone / 1000;
         $w = round($w, 2, PHP_ROUND_HALF_UP);
         $lot = Arr::get($item['DT_RowData'], 'pack');
-        $image = "https://i.nash-dvor.com/files/detail/{$item['detail']}.jpg?_=" . Carbon::parse($item['detailImg'])->timestamp;
+        $dImg = empty($item['detailImg']) ? Carbon::now()->timestamp : Carbon::parse($item['detailImg'])->timestamp;
+        $image = "https://i.nash-dvor.com/files/detail/{$item['detail']}.jpg?_=" . $dImg;
 
         $category = ItemCategory::where('category_name', $item['typeName'])->first();
         $categoryID = 1;
@@ -144,7 +145,7 @@ class DevController extends Controller
         if (empty($mountName)) {
             return null;
         }
-        $htxt = function ($s){
+        $htxt = function ($s) {
             return strtolower(trim($s));
         };
         $m = $mountTypes->first(function (MountingType $m) use ($mountName, $htxt) {
